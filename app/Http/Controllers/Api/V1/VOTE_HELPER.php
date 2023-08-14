@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Models\Candidat;
 use App\Models\Elector;
 use App\Models\Vote;
+use App\Models\VoteStatus;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -77,6 +78,10 @@ class VOTE_HELPER extends BASE_HELPER
     static function createVote($request)
     {
         $formData = $request->all();
+        $status = VoteStatus::where("id", $formData["status"])->get();
+        if ($status->count() == 0) {
+            return self::sendError("Ce status n'existe pas!", 404);
+        }
 
         $user =  request()->user();
 
@@ -92,9 +97,9 @@ class VOTE_HELPER extends BASE_HELPER
         $formData["organisation"] = $organisation_id;
 
         #TRAITEMENT DU CHAMP **candidats** renseigné PAR LE USER
-        $candidats_ids = $formData["candidats"];
+        $candidats = $formData["candidats"];
         // return $candidats;
-        // $candidats_ids = explode(",", $candidats);
+        $candidats_ids = explode(",", $candidats);
         foreach ($candidats_ids as $id) {
             $candidat = Candidat::where(["id" => $id, "owner" => $user->id]);
             if ($candidat->count() == 0) {
@@ -104,8 +109,8 @@ class VOTE_HELPER extends BASE_HELPER
 
         #TRAITEMENT DU CHAMP **electors** S'IL EST renseigné PAR LE USER
         if ($request->get("electors")) {
-            $electors_ids = $formData["electors"];
-            // $electors_ids = explode(",", $electors);
+            $electors = $formData["electors"];
+            $electors_ids = explode(",", $electors);
             foreach ($electors_ids as $id) {
                 $elector = Elector::where(["id" => $id, "owner" => $user->id])->get();
                 if ($elector->count() == 0) {
@@ -157,13 +162,13 @@ class VOTE_HELPER extends BASE_HELPER
 
     static function getVotes()
     {
-        $vote =  Vote::with(['owner', "candidats", "electors"])->where(["owner" => request()->user()->id])->orderBy("id", "desc")->get();
+        $vote =  Vote::with(["status", 'owner', "candidats", "electors"])->where(["owner" => request()->user()->id])->orderBy("id", "desc")->get();
         return self::sendResponse($vote, 'Tout les votes récupérés avec succès!!');
     }
 
     static function retrieveVotes($id)
     {
-        $vote = Vote::with(['owner', "candidats", "electors"])->where(["owner" => request()->user()->id, "id" => $id])->get();
+        $vote = Vote::with(["status", 'owner', "candidats", "electors"])->where(["owner" => request()->user()->id, "id" => $id])->get();
         if ($vote->count() == 0) {
             return self::sendError("Ce vote n'existe pas!", 404);
         }

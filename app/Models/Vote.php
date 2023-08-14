@@ -15,6 +15,8 @@ class Vote extends Model
         "name",
         "organisation",
         "status",
+        "start_vote",
+        "end_vote"
     ];
 
     function owner(): BelongsTo
@@ -30,5 +32,9 @@ class Vote extends Model
     public function electors(): BelongsToMany
     {
         return $this->BelongsToMany(Elector::class, 'electors_votes', 'vote_id', 'elector_id');
+    }
+
+    function status() : BelongsTo {
+        return $this->belongsTo(VoteStatus::class,"status");
     }
 }
