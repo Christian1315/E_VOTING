@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Models\Candidat;
 use App\Models\Elector;
 use App\Models\Organisation;
+use App\Models\User;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -49,6 +50,46 @@ class ELECTOR_HELPER extends BASE_HELPER
         $formData = $request->all();
         $secret_code = Str::uuid();
 
+        #SON ENREGISTREMENT EN TANT QU'UN USER
+
+        $user = request()->user();
+        $type = "ELEC";
+
+        #Detection de l'organisation
+        if ($user->is_super_admin) { #S'il sagit d'un super_admin
+            $organisation = null;
+            $organisationId = null;
+        } else { #S'il sagit d'un simple admin
+            $organisation = $user->organisation; #RECUPEARATION DE L'ORGANISATION A LAQUELLE LE USER(admin ou super_admin) APPARTIENT
+            $organisationId = $organisation->id;
+        }
+
+
+        $username =  Get_Username($user, $type); ##Get_Username est un helper qui genère le **username** 
+
+        ##VERIFIONS SI LE USER EXISTAIT DEJA
+        $user = User::where("phone", $formData['phone'])->get();
+        if (count($user) != 0) {
+            return self::sendError("Un compte existe déjà au nom de ce identifiant!", 404);
+        }
+        $user = User::where("email", $formData['email'])->get();
+        if (count($user) != 0) {
+            return self::sendError("Un compte existe déjà au nom de ce identifiant!!", 404);
+        }
+
+        $userData = [
+            "name" => $formData['name'],
+            "username" => $username,
+            "phone" => $formData['phone'],
+            "email" => $formData['email'],
+            "password" => $username,
+            "organisation" => $organisationId,
+        ];
+
+        // return $formData;
+        $formData["username"] = $username;
+
+        $user = User::create($userData);
 
         ##ENREGISTREMENT DE L'ELECTEUR DANS LA DB
         $elector = Elector::create($formData);

@@ -53,4 +53,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Admin::class, "owner");
     }
+
+    function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class, "organisation")->where("is_super_admin", 0);
+    }
 }

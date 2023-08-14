@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 
+
 class VOTE_HELPER extends BASE_HELPER
 {
     ##======== VOTE VALIDATION =======##
@@ -140,10 +141,19 @@ class VOTE_HELPER extends BASE_HELPER
             foreach ($electors_ids as $id) {
                 $this_elector_vote = ElectorVote::where(["elector_id" => $id, "vote_id" => $vote->id])->get();
                 #On verifie d'abord si ce attachement existait déjà 
+
                 if ($this_elector_vote->count() == 0) {
                     $elector = Elector::where(["id" => $id, "owner" => $user->id])->get();
                     $vote->electors()->attach($elector);
                 }
+
+                #Ajout du code secret dans la table **eletors_votes**
+                $this_elector_vote = ElectorVote::where(["elector_id" => $id, "vote_id" => $vote->id])->get();
+                
+                $this_elector_vote = $this_elector_vote[0];
+                $elector_vote = ElectorVote::find($this_elector_vote->id);
+                $elector_vote->secret_code = Str::uuid();
+                $elector_vote->save();
             }
         }
 

@@ -9,5 +9,9 @@ class ElectorVote extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        "secret_code",
+    ];
+
     protected $table = "electors_votes";
 }

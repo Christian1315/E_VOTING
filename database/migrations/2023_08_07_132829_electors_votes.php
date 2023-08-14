@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+
 return new class extends Migration
 {
     /**
@@ -15,6 +16,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('elector_id')->nullable()->constrained();
             $table->foreignId('vote_id')->nullable()->constrained();
+            $table->string('secret_code')->nullable();
+            $table->date("creat_at")->default(now());
             $table->timestamps();
         });
     }
