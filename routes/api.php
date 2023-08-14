@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\ElectorController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\OrganisationController;
 use App\Http\Controllers\Api\V1\VoteController;
+use App\Http\Controllers\Api\V1\VoteStatusController;
 use App\Models\Admin;
 use App\Models\Candidat;
 use App\Models\Vote;
@@ -89,6 +90,14 @@ Route::prefix('v1')->group(function () {
             Route::any('{id}/update', 'UpdateVote');
             Route::any('{id}/delete', 'DeleteVote');
             Route::any('/affect-to-elector', '_AffectToElector');
+        });
+    });
+
+    ###========== VOTE STATUS ROUTINGS ========###
+    Route::prefix('VoteStatus')->group(function () {
+        Route::controller(VoteStatusController::class)->group(function () {
+            Route::any('all', 'Status');
+            Route::any('{id}/retrieve', '_RetrieveStatus');
         });
     });
 });

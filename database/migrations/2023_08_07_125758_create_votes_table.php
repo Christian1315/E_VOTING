@@ -21,13 +21,20 @@ return new class extends Migration
                 ->onUpdate("CASCADE")
                 ->onDelete("CASCADE");
 
+            $table->foreignId('status')
+                ->nullable()
+                ->constrained("vote_statuses", "id")
+                ->onUpdate("CASCADE")
+                ->onDelete("CASCADE");
+
             $table->foreignId('owner')
                 ->nullable()
                 ->constrained("users", "id")
                 ->onUpdate("CASCADE")
                 ->onDelete("CASCADE");
 
-            $table->boolean('status')->default(true);
+            $table->string('start_vote')->nullable();
+            $table->string('end_vote')->nullable();
             $table->boolean('visible')->default(true);
             $table->string('delete_at')->nullable();
             $table->timestamps();

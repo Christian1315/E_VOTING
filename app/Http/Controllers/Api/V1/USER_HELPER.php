@@ -80,6 +80,7 @@ class USER_HELPER extends BASE_HELPER
     static function NEW_PASSWORD_rules(): array
     {
         return [
+            'old_password' => 'required',
             'new_password' => 'required',
         ];
     }
@@ -158,9 +159,12 @@ class USER_HELPER extends BASE_HELPER
         if (count($user) == 0) {
             return self::sendError("Ce utilisateur n'existe pas!", 404);
         };
-        $user = User::find($id);
-        $user->update(["password" => $formData["new_password"]]);
-        return self::sendResponse($user, 'Mot de passe modifié avec succès!');
+
+        if (Hash::check($formData["old_password"], $user[0]->password)) { #SI LE old_password correspond au password du user dans la DB
+            $user[0]->update(["password" => $formData["new_password"]]);
+            return self::sendResponse($user, 'Mot de passe modifié avec succès!');
+        }
+        return self::sendError("Votre mot de passe est incorrect", 505);
     }
 
     static function userLogout($request)

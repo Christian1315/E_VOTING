@@ -93,6 +93,7 @@ class ADMIN_HELPER extends BASE_HELPER
         ##ENREGISTREMENT DE L'ADMIN DANS LA DB
         $admin = Admin::create($formData);
         $admin->as_user = $user->id;
+        $admin->id_admin = true;
         $admin->owner = request()->user()->id;
         $admin->save();
 

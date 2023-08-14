@@ -34,5 +34,25 @@ class DatabaseSeeder extends Seeder
         foreach ($users as $user) {
             \App\Models\User::factory()->create($user);
         }
+
+        ###========CREATION DES STATUS DE VOTE PAR DEFAUT ==========###
+        $vote_status = [
+            [
+                'name' => 'En Attente',
+            ],
+            [
+                'name' => 'En Cour',
+            ],
+            [
+                'name' => 'Terminé',
+            ],
+            [
+                'name' => 'Annulé',
+            ],
+        ];
+
+        foreach ($vote_status as $status) {
+            \App\Models\VoteStatus::factory()->create($status);
+        }
     }
 }

@@ -18,6 +18,8 @@ class VOTE_HELPER extends BASE_HELPER
         return [
             'name' => ['required', Rule::unique('votes')],
             'status' => ['required'],
+            'start_vote' => ['required'],
+            'end_vote' => ['required'],
             'candidats' => ['required'],
         ];
     }
