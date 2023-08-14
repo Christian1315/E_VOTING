@@ -18,6 +18,7 @@ class Elector extends Model
         "email",
         "secret_code",
         "owner",
+        "as_user",
     ];
 
     protected $hidden = [

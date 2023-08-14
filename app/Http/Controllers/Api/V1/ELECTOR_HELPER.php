@@ -93,10 +93,24 @@ class ELECTOR_HELPER extends BASE_HELPER
 
         ##ENREGISTREMENT DE L'ELECTEUR DANS LA DB
         $elector = Elector::create($formData);
+        $elector->as_user = $user->id;
         $elector->owner = request()->user()->id;
         $elector->secret_code = $secret_code;
-        $elector->identifiant = userCount() . Custom_Timestamp() . userCount();
+        $elector->identifiant = $username;
         $elector->save();
+
+        #=====ENVOIE D'SMS A L'ELECTEUR APRES CREATION DE SON COMPTE USER =======~####
+        $sms_login =  Login_To_Frik_SMS();
+
+        if ($sms_login['status']) {
+            $token =  $sms_login['data']['token'];
+
+            Send_SMS(
+                $formData['phone'],
+                "Votre compte Utilisateur a été crée avec succès sur E-VOTING. Voici ci-dessous vos identifiants de connexion: Username::" . $username,
+                $token
+            );
+        }
 
         return self::sendResponse($elector, 'Electeur crée avec succès!!');
     }

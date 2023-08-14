@@ -18,6 +18,11 @@ return new class extends Migration
             $table->string('phone');
             $table->string('email');
             $table->string('secret_code')->nullable();
+            $table->foreignId('as_user')
+                ->nullable()
+                ->constrained("users", "id")
+                ->onUpdate("CASCADE")
+                ->onDelete("CASCADE");
             $table->foreignId('owner')
                 ->nullable()
                 ->constrained("users", "id")

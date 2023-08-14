@@ -8,6 +8,7 @@ use App\Models\Elector;
 use App\Models\ElectorVote;
 use App\Models\Vote;
 use App\Models\VoteStatus;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -149,7 +150,7 @@ class VOTE_HELPER extends BASE_HELPER
 
                 #Ajout du code secret dans la table **eletors_votes**
                 $this_elector_vote = ElectorVote::where(["elector_id" => $id, "vote_id" => $vote->id])->get();
-                
+
                 $this_elector_vote = $this_elector_vote[0];
                 $elector_vote = ElectorVote::find($this_elector_vote->id);
                 $elector_vote->secret_code = Str::uuid();
@@ -164,9 +165,11 @@ class VOTE_HELPER extends BASE_HELPER
                 $elector = Elector::where(["id" => $id, "owner" => $user->id])->get()[0];
                 $sms_login =  Login_To_Frik_SMS();
 
+                #Hash du code secret
+                $hashed_code_secret = Hash::make($elector->secret_code);
                 if ($sms_login['status']) {
                     $token =  $sms_login['data']['token'];
-                    $vote_url = env("BASE_URL") . "/vote/" . $elector->identifiant . "/" . $elector->secret_code . "/" . $vote->id;
+                    $vote_url = env("BASE_URL") . "/vote?ID=" . $elector->identifiant . "&secret_code=" . $hashed_code_secret;
                     Send_SMS(
                         $elector->phone,
                         "Vous avez été affecté au vote " . $vote->name . " en tant qu'electeur sur e-voting! Cliquez ici pour voter: " . $vote_url,
