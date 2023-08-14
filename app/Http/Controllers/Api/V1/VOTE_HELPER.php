@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Candidat;
+use App\Models\CandidatVote;
 use App\Models\Elector;
+use App\Models\ElectorVote;
 use App\Models\Vote;
 use App\Models\VoteStatus;
 use Illuminate\Validation\Rule;
@@ -101,7 +103,7 @@ class VOTE_HELPER extends BASE_HELPER
         // return $candidats;
         $candidats_ids = explode(",", $candidats);
         foreach ($candidats_ids as $id) {
-            $candidat = Candidat::where(["id" => $id, "owner" => $user->id]);
+            $candidat = Candidat::where(["id" => $id, "owner" => $user->id])->get();
             if ($candidat->count() == 0) {
                 return self::sendError("Le candidat d'id :" . $id . " n'existe pas!", 404);
             }
@@ -125,15 +127,23 @@ class VOTE_HELPER extends BASE_HELPER
 
         #AFFECTATION DU CANDIDAT AU VOTE 
         foreach ($candidats_ids as $id) {
-            $candidat = Candidat::where(["id" => $id, "owner" => $user->id])->get();
-            $vote->candidats()->attach($candidat);
+            $this_candidate_vote = CandidatVote::where(["candidat_id" => $id, "vote_id" => $vote->id])->get();
+            #On verifie d'abord si ce attachement existait déjà 
+            if ($this_candidate_vote->count() == 0) {
+                $candidat = Candidat::where(["id" => $id, "owner" => $user->id])->get();
+                $vote->candidats()->attach($candidat);
+            }
         }
 
         #AFFECTATION DE L'ELECTEUR AU VOTE S'IL LE CHAMP EST RENSEIGNE PAR LE USER
         if ($request->get("electors")) {
             foreach ($electors_ids as $id) {
-                $elector = Elector::where(["id" => $id, "owner" => $user->id])->get();
-                $vote->electors()->attach($elector);
+                $this_elector_vote = ElectorVote::where(["elector_id" => $id, "vote_id" => $vote->id])->get();
+                #On verifie d'abord si ce attachement existait déjà 
+                if ($this_elector_vote->count() == 0) {
+                    $elector = Elector::where(["id" => $id, "owner" => $user->id])->get();
+                    $vote->electors()->attach($elector);
+                }
             }
         }
 
@@ -156,7 +166,6 @@ class VOTE_HELPER extends BASE_HELPER
             }
         }
 
-
         return self::sendResponse($vote, 'Vote crée avec succès!!');
     }
 
@@ -178,10 +187,14 @@ class VOTE_HELPER extends BASE_HELPER
     static function updateVotes($request, $id)
     {
         $formData = $request->all();
+        $user = request()->user();
+
         $vote = Vote::where(['id' => $id, 'owner' => request()->user()->id])->get();
         if ($vote->count() == 0) {
             return self::sendError("Ce vote n'existe pas!", 404);
         }
+
+        $vote = $vote[0];
 
         #FILTRAGE POUR EVITER LES DOUBLONS
         if ($request->get("name")) {
@@ -192,7 +205,51 @@ class VOTE_HELPER extends BASE_HELPER
             }
         }
 
-        $elector = $vote[0];
+        #TRAITEMENT DU CHAMP **electors** S'IL EST renseigné PAR LE USER
+        if ($request->get("electors")) {
+            $electors = $formData["electors"];
+            $electors_ids = explode(",", $electors);
+            foreach ($electors_ids as $id) {
+                $elector = Elector::where(["id" => $id, "owner" => $user->id])->get();
+                if ($elector->count() == 0) {
+                    return self::sendError("L'electeur d'id :" . $id . " n'existe pas!", 404);
+                }
+            }
+
+            #AFFECTATION DE L'ELECTEUR AU VOTE S'IL LE CHAMP EST RENSEIGNE PAR LE USER
+            foreach ($electors_ids as $id) {
+                $this_elector_vote = ElectorVote::where(["elector_id" => $id, "vote_id" => $vote->id])->get();
+                #On verifie d'abord si ce attachement existait déjà 
+                if ($this_elector_vote->count() == 0) {
+                    $elector = Elector::where(["id" => $id, "owner" => $user->id])->get();
+                    $vote->electors()->attach($elector);
+                }
+            }
+        }
+
+        #TRAITEMENT DU CHAMP **candidats** renseigné PAR LE USER
+        if ($request->get("candidats")) {
+            $candidats = $formData["candidats"];
+            $candidats_ids = explode(",", $candidats);
+            foreach ($candidats_ids as $id) {
+                $candidat = Candidat::where(["id" => $id, "owner" => $user->id])->get();
+                if ($candidat->count() == 0) {
+                    return self::sendError("Le candidat d'id :" . $id . " n'existe pas!", 404);
+                }
+            }
+
+            #AFFECTATION DU CANDIDAT AU VOTE 
+            foreach ($candidats_ids as $id) {
+                $this_candidate_vote = CandidatVote::where(["candidat_id" => $id, "vote_id" => $vote->id])->get();
+                #On verifie d'abord si ce attachement existait déjà 
+                if ($this_candidate_vote->count() == 0) {
+                    $candidat = Candidat::where(["id" => $id, "owner" => $user->id])->get();
+                    $vote->candidats()->attach($candidat);
+                }
+            }
+        }
+
+        $elector = $vote;
         $elector->update($formData);
         return self::sendResponse($elector, "Vote modifié(e) avec succès:!!");
     }

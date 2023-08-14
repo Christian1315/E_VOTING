@@ -20,6 +20,10 @@ class Elector extends Model
         "owner",
     ];
 
+    protected $hidden = [
+        'secret_code',
+    ];
+
     function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, "owner");
