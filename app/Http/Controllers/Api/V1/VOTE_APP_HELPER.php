@@ -69,22 +69,25 @@ class VOTE_APP_HELPER extends BASE_HELPER
     static function voteAppLogin($request)
     {
         $formData = $request->all();
-        #Verifie si l'electeur a déjà voter pour ce vote
+
         $elector_vote = ElectorVote::where(["secret_code" => $formData["secret_code"]])->get();
-        if ($elector_vote[0]->voted) {
-            return self::sendError("Merci d'avoir déjà voter pour ce vote!", 404);
-        }
 
         $elector = Elector::where("identifiant", $formData["id"])->get();
         if ($elector->count() == 0) { #On vérifie s'il est un Electeur d'abord
             return self::sendError("Echec de connexion! Vous n'etes pas un electeur", 404);
         }
 
+        #Verifie si l'electeur a déjà voter pour ce vote
+        if ($elector_vote[0]->voted) {
+            return self::sendError("Merci d'avoir déjà voter pour ce vote!", 404);
+        }
 
         #on verifie s'il a été vraiment affecté.e à ce vote
         if ($elector_vote->count() == 0) {
-            return self::sendError("Echec de connexion!", 404);
+            return self::sendError("Ce vote n'existe pas!", 404);
         }
+
+
 
         $vote_id = $elector_vote[0]->vote_id; #Recuperation de l'ID du vote
         $vote = Vote::where("id", $vote_id)->get(); #Recuperation du vote
@@ -102,6 +105,11 @@ class VOTE_APP_HELPER extends BASE_HELPER
     {
         $formData = $request->all();
         $elector_vote = ElectorVote::where(["secret_code" => $formData["secret_code"]])->get();
+
+        #on verifie s'il a été vraiment affecté.e à ce vote
+        if ($elector_vote->count() == 0) {
+            return self::sendError("Ce vote n'existe pas!", 404);
+        }
 
         $vote_id = $elector_vote[0]->vote_id; #Recuperation de l'ID du vote
         $vote = Vote::where("id", $vote_id)->get(); #Recuperation du vote
