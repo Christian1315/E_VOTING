@@ -11,7 +11,9 @@ class ElectorVote extends Model
 
     protected $fillable = [
         "secret_code",
+        "pivot"
     ];
 
     protected $table = "electors_votes";
+
 }

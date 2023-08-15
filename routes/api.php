@@ -8,9 +8,7 @@ use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\OrganisationController;
 use App\Http\Controllers\Api\V1\VoteController;
 use App\Http\Controllers\Api\V1\VoteStatusController;
-use App\Models\Admin;
-use App\Models\Candidat;
-use App\Models\Vote;
+use App\Http\Controllers\Api\V1\VoteAppController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -98,6 +96,14 @@ Route::prefix('v1')->group(function () {
         Route::controller(VoteStatusController::class)->group(function () {
             Route::any('all', 'Status');
             Route::any('{id}/retrieve', '_RetrieveStatus');
+        });
+    });
+
+    ###========== VOTE APP ROUTINGS ========###
+    Route::prefix('voteApp')->group(function () {
+        Route::controller(VoteAppController::class)->group(function () {
+            Route::any('login', '_VoteAppLogin');
+            Route::any('voteNow', '_VoteNow');
         });
     });
 });

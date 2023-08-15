@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('elector_id')->nullable()->constrained();
             $table->foreignId('vote_id')->nullable()->constrained();
             $table->string('secret_code')->nullable();
+            $table->boolean('voted')->default(false);
             $table->date("creat_at")->default(now());
             $table->timestamps();
         });

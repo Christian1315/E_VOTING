@@ -60,12 +60,7 @@ class VOTE_HELPER extends BASE_HELPER
 
     static function vote_affect_messages(): array
     {
-        return [
-            // 'name.required' => 'Le name est réquis!',
-            // 'name.uniq' => 'Ce Champ est un mail!',
-            // 'phone.required' => 'Le phone est réquis!',
-            // 'phone.unique' => 'Le phone est existe déjà!',
-        ];
+        return [];
     }
 
     static function Vote_affect_Validator($formDatas)
@@ -77,7 +72,6 @@ class VOTE_HELPER extends BASE_HELPER
         $validator = Validator::make($formDatas, $rules, $messages);
         return $validator;
     }
-
 
     static function createVote($request)
     {
@@ -137,14 +131,14 @@ class VOTE_HELPER extends BASE_HELPER
             }
         }
 
-        #AFFECTATION DE L'ELECTEUR AU VOTE S'IL LE CHAMP EST RENSEIGNE PAR LE USER
         if ($request->get("electors")) {
             foreach ($electors_ids as $id) {
+                #AFFECTATION DE L'ELECTEUR AU VOTE S'IL LE CHAMP EST RENSEIGNE PAR LE USER
+                $elector = Elector::where(["id" => $id, "owner" => $user->id])->get();
+
                 $this_elector_vote = ElectorVote::where(["elector_id" => $id, "vote_id" => $vote->id])->get();
                 #On verifie d'abord si ce attachement existait déjà 
-
-                if ($this_elector_vote->count() == 0) {
-                    $elector = Elector::where(["id" => $id, "owner" => $user->id])->get();
+                if ($this_elector_vote->count() == 0) { #Si ça n'existe pas, on le crée
                     $vote->electors()->attach($elector);
                 }
 
@@ -155,23 +149,21 @@ class VOTE_HELPER extends BASE_HELPER
                 $elector_vote = ElectorVote::find($this_elector_vote->id);
                 $elector_vote->secret_code = Str::uuid();
                 $elector_vote->save();
-            }
-        }
 
-        #=====ENVOIE D'SMS =======~####
-        #AUX ELECTEURS DU VOTE SI L'UTILISATEUR LES RENSEIGNE
-        if ($request->get("electors")) {
-            foreach ($electors_ids as $id) {
-                $elector = Elector::where(["id" => $id, "owner" => $user->id])->get()[0];
+                #===== ENVOIE D'SMS AUX ELECTEURS DU VOTE =======~####
+
                 $sms_login =  Login_To_Frik_SMS();
 
-                #Hash du code secret
-                $hashed_code_secret = Hash::make($elector->secret_code);
+                #Crypt du code secret de la table **electors_votes**
+                // $cryp_code_secret = encrypt($elector_vote->secret_code); 
+                // $cryp_code_secret = Hash::make($elector_vote->secret_code);
+                // return $cryp_code_secret;
+
                 if ($sms_login['status']) {
                     $token =  $sms_login['data']['token'];
-                    $vote_url = env("BASE_URL") . "/vote?ID=" . $elector->identifiant . "&secret_code=" . $hashed_code_secret;
+                    $vote_url = env("BASE_URL") . "/vote?id=" . $elector[0]->identifiant . "&token=" . $elector_vote->secret_code;
                     Send_SMS(
-                        $elector->phone,
+                        $elector[0]->phone,
                         "Vous avez été affecté au vote " . $vote->name . " en tant qu'electeur sur e-voting! Cliquez ici pour voter: " . $vote_url,
                         $token
                     );
@@ -296,7 +288,11 @@ class VOTE_HELPER extends BASE_HELPER
 
         $vote = $vote[0];
 
-        $vote->electors()->attach($elector);
+        $this_elector_vote = ElectorVote::where(["elector_id" => $formData['elector_id'], "vote_id" => $vote->id])->get();
+        #On verifie d'abord si ce attachement existait déjà 
+        if ($this_elector_vote->count() == 0) { #Si ça n'existe pas, on le crée
+            $vote->electors()->attach($elector);
+        }
 
         #++====== ENVOIE D'SMS AU ELECTEUR +++++=======
         $sms_login =  Login_To_Frik_SMS();

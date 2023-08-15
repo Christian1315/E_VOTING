@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('candidat_id')->nullable()->constrained();
             $table->foreignId('vote_id')->nullable()->constrained();
+            $table->integer('score')->default(0);
+            $table->date('creat_at')->default(now());
             $table->timestamps();
         });
     }
