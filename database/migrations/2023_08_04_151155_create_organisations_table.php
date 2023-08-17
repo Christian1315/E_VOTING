@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('description');
             $table->string('img');
             $table->string('sigle');
+            $table->string('sigle');
+            // $table->string('sigle_test');
             $table->foreignId('owner')
                 ->nullable()
                 ->constrained("users", "id")

@@ -92,7 +92,7 @@ Route::prefix('v1')->group(function () {
     });
 
     ###========== VOTE STATUS ROUTINGS ========###
-    Route::prefix('VoteStatus')->group(function () {
+    Route::prefix('voteStatus')->group(function () {
         Route::controller(VoteStatusController::class)->group(function () {
             Route::any('all', 'Status');
             Route::any('{id}/retrieve', '_RetrieveStatus');

@@ -1,8 +1,8 @@
 
-## POURQUOI FRIK SMS
+## POURQUOI E-VOTING
 
-FRIK SMS innove afin de garantir à ses clients 
-une visibilité optimale DE MARKETING par messagérie
+E-VOTING innove afin de garantir à ses clients 
+une visibilité optimale DE VOTE EN LIGNE
 
 ## Development Technology
 
