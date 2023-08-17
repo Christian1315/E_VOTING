@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>E-VOTING</title>
-    <link rel="shortcut icon" href="e-voting.jpeg" type="image/x-icon">
+    <link rel="shortcut icon" href="favicon.jpeg" type="image/x-icon">
     <link rel="stylesheet" href="bootstrap.css">
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous"> -->
     <link rel="stylesheet" href="style.css">
@@ -49,6 +49,7 @@
             <div class="col-md-12 text-center">
                 <h1 class="title">Soyez les bienvenu sur l'API de E-VOTING</h1>
                 <p class="text-dark">Pour commencer,veuillez jetter un oeil sur la documentation pour avoir une vision plus claire de l'implementation des différentes routes!</p>
+                <img src="e-voting.jpeg" class="img-fluid rounded shadow-lg" width="500" alt="" srcset=""><br><br>
                 <a href="#" class="btn documentation bg-success">Voir la documentation</a>
             </div>
         </div>
