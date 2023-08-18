@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Candidat extends Model
 {
@@ -30,6 +31,6 @@ class Candidat extends Model
 
     public function votes(): BelongsToMany
     {
-        return $this->BelongsToMany(Vote::class, 'candidats_votes', 'candidat_id', 'vote_id');
+        return $this->BelongsToMany(Vote::class, 'candidats_votes', 'candidat_id', 'vote_id')->withPivot("score");
     }
 }

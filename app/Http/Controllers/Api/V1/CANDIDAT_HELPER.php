@@ -66,7 +66,7 @@ class CANDIDAT_HELPER extends BASE_HELPER
             if ($organisation->count() == 0) {
                 return self::sendError("Cette organisation n'existe pas!", 404);
             }
-            
+
             #ON SE RASSURE QU'IL A ETE AFFECTE A CETTE ORGANISATION
             $user_organisation_id = $user->organisation; #recuperation de l'ID de l'organisation affectée au user
             $organisation = Get_User_Organisation($user_organisation_id);
@@ -99,13 +99,13 @@ class CANDIDAT_HELPER extends BASE_HELPER
 
     static function getCandidats()
     {
-        $candidat =  Candidat::with(['owner', 'belong_to_organisation',"votes"])->where(["owner" => request()->user()->id])->orderBy("id", "desc")->get();
+        $candidat =  Candidat::with(['owner', 'belong_to_organisation', "votes"])->where(["owner" => request()->user()->id])->orderBy("id", "desc")->get();
         return self::sendResponse($candidat, 'Tout les candidats récupérés avec succès!!');
     }
 
     static function retrieveCandidats($id)
     {
-        $candidat = Candidat::with(['owner', 'belong_to_organisation',"votes"])->where(["owner" => request()->user()->id, "id" => $id])->get();
+        $candidat = Candidat::with(['owner', 'belong_to_organisation', "votes"])->where(["owner" => request()->user()->id, "id" => $id])->get();
         if ($candidat->count() == 0) {
             return self::sendError("Ce Candidat n'existe pas!", 404);
         }

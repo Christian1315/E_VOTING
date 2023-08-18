@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\CandidatVote;
 use App\Models\Organisation;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
@@ -54,9 +55,9 @@ function Send_SMS($phone, $message, $token)
 
 
 
-##======== CE HELPER PERMET DeE RECUPERER L'ORGANISATION D'UN USER ==========## 
+##======== CE HELPER PERMET DeE RECUPERER LE CANDIDAT & VOTE DANS LA TABLE **candidats_votes** ==========## 
 
-function Get_User_Organisation($user_organisation_id)
+function Get_CandidatVote($candidatId, $voteId)
 {
-    return Organisation::find($user_organisation_id);
+    return CandidatVote::where(["candidat_id" => $candidatId, "vote_id" => $voteId])[0]->get();
 }
