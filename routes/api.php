@@ -88,6 +88,7 @@ Route::prefix('v1')->group(function () {
             Route::any('{id}/update', 'UpdateVote');
             Route::any('{id}/delete', 'DeleteVote');
             Route::any('/affect-to-elector', '_AffectToElector');
+            Route::any('{id}/initiate-a-vote', '_InitiateVote');
         });
     });
 

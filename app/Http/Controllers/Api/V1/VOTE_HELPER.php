@@ -87,16 +87,16 @@ class VOTE_HELPER extends BASE_HELPER
             $organisation_id = null;
         } else { #S'IL N'EST PAS UN SUPER ADMIN
             #ON RECUPERE SON ORGANISATION
-            $user_organisation_id = $user->organisation; #recuperation de l'ID de l'organisation affectée au user
+            $organisation_id = $user->organisation; #recuperation de l'ID de l'organisation affectée au user
             // $organisation = Get_User_Organisation($user_organisation_id);
             // $organisation_id = $organisation->id;
         }
-        $formData["organisation"] = $user_organisation_id;
+        $formData["organisation"] = $organisation_id;
 
         #TRAITEMENT DU CHAMP **candidats** renseigné PAR LE USER
-        $candidats_ids = $formData["candidats"];
+        $candidats = $formData["candidats"];
         // return $candidats;
-        // $candidats_ids = explode(",", $candidats);
+        $candidats_ids = explode(",", $candidats);
         foreach ($candidats_ids as $id) {
             $candidat = Candidat::where(["id" => $id, "owner" => $user->id])->get();
             if ($candidat->count() == 0) {
@@ -106,8 +106,8 @@ class VOTE_HELPER extends BASE_HELPER
 
         #TRAITEMENT DU CHAMP **electors** S'IL EST renseigné PAR LE USER
         if ($request->get("electors")) {
-            $electors_ids = $formData["electors"];
-            // $electors_ids = explode(",", $electors);
+            $electors = $formData["electors"];
+            $electors_ids = explode(",", $electors);
             foreach ($electors_ids as $id) {
                 $elector = Elector::where(["id" => $id, "owner" => $user->id])->get();
                 if ($elector->count() == 0) {
@@ -149,24 +149,24 @@ class VOTE_HELPER extends BASE_HELPER
                 $elector_vote->secret_code = Str::uuid();
                 $elector_vote->save();
 
-                #===== ENVOIE D'SMS AUX ELECTEURS DU VOTE =======~####
+                // #===== ENVOIE D'SMS AUX ELECTEURS DU VOTE =======~####
 
-                $sms_login =  Login_To_Frik_SMS();
+                // $sms_login =  Login_To_Frik_SMS();
 
-                #Crypt du code secret de la table **electors_votes**
-                // $cryp_code_secret = encrypt($elector_vote->secret_code); 
-                // $cryp_code_secret = Hash::make($elector_vote->secret_code);
-                // return $cryp_code_secret;
+                // #Crypt du code secret de la table **electors_votes**
+                // // $cryp_code_secret = encrypt($elector_vote->secret_code); 
+                // // $cryp_code_secret = Hash::make($elector_vote->secret_code);
+                // // return $cryp_code_secret;
 
-                if ($sms_login['status']) {
-                    $token =  $sms_login['data']['token'];
-                    $vote_url = env("BASE_URL") . "/vote?id=" . $elector[0]->identifiant . "&token=" . $elector_vote->secret_code;
-                    Send_SMS(
-                        $elector[0]->phone,
-                        "Vous avez été affecté au vote " . $vote->name . " en tant qu'electeur sur e-voting! Cliquez ici pour voter: " . $vote_url,
-                        $token
-                    );
-                }
+                // if ($sms_login['status']) {
+                //     $token =  $sms_login['data']['token'];
+                //     $vote_url = env("BASE_URL") . "/vote?id=" . $elector[0]->identifiant . "&token=" . $elector_vote->secret_code;
+                //     Send_SMS(
+                //         $elector[0]->phone,
+                //         "Vous avez été affecté au vote " . $vote->name . " en tant qu'electeur sur e-voting! Cliquez ici pour voter: " . $vote_url,
+                //         $token
+                //     );
+                // }
             }
         }
 
@@ -307,5 +307,54 @@ class VOTE_HELPER extends BASE_HELPER
         }
 
         return self::sendResponse($vote, "Affectation effectuée avec succès!");
+    }
+
+    function initiateVote($request, $vote_id)
+    {
+
+        $user = request()->user();
+
+
+        $vote = Vote::where(["id" => $vote_id, "owner" => $user->id])->get();
+        if ($vote->count() == 0) {
+            return self::sendError("Ce vote n'existe pas!", 404);
+        };
+
+        $vote = $vote[0];
+        #VERIFIONS SI CE VOTE A DEJA ETE INITIER
+        if ($vote->status == 2) {
+            return self::sendError("Ce vote est déjà initié", 505);
+        }
+        $electors = $vote->electors;
+
+        #CHANGEMENT DE STATUS DU VOTE
+        $vote->status = 2;
+        $vote->save();
+        // return $electors;
+        foreach ($electors as $elector) {
+            // return $elector->id;
+            $this_elector_vote = ElectorVote::where(["elector_id" => $elector->id, "vote_id" => $vote_id])->get();
+
+            $this_elector_vote = $this_elector_vote[0];
+            // $elector_vote = ElectorVote::find($this_elector_vote->id);
+            // $elector_vote->secret_code = Str::uuid();
+            // $elector_vote->save();
+
+            #===== ENVOIE D'SMS AUX ELECTEURS DU VOTE =======~####
+
+            $sms_login =  Login_To_Frik_SMS();
+
+            if ($sms_login['status']) {
+                $token =  $sms_login['data']['token'];
+                $vote_url = env("BASE_URL") . "/vote?id=" . $elector->identifiant . "&token=" . $this_elector_vote->secret_code;
+                Send_SMS(
+                    $elector->phone,
+                    "Vous avez été affecté au vote " . $vote->name . " en tant qu'electeur sur e-voting! Cliquez ici pour voter: " . $vote_url,
+                    $token
+                );
+            }
+
+            return self::sendResponse($vote, "Vote initié avec succès!!");
+        }
     }
 }

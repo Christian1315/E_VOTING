@@ -100,4 +100,15 @@ class VoteController extends VOTE_HELPER
 
         return $this->AffectToElector($request);
     }
+
+    function _InitiateVote(Request $request, $id)
+    {
+        #VERIFICATION DE LA METHOD
+        if ($this->methodValidation($request->method(), "POST") == False) {
+            #RENVOIE D'ERREURE VIA **sendError** DE LA CLASS Vote_HELPER
+            return $this->sendError("La méthode " . $request->method() . " n'est pas supportée pour cette requete!!", 404);
+        };
+
+        return $this->initiateVote($request, $id);
+    }
 }
