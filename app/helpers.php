@@ -54,12 +54,14 @@ function Send_SMS($phone, $message, $token)
 }
 
 
-
-##======== CE HELPER PERMET DeE RECUPERER LE CANDIDAT & VOTE DANS LA TABLE **candidats_votes** ==========## 
-
-function Get_CandidatVote($candidatId, $voteId)
-{
-    return CandidatVote::where(["candidat_id" => $candidatId, "vote_id" => $voteId])[0]->get();
+##======== CE HELPER PERMET DE VERIFIER SI LE USER EST UN SUPER ADMIN OU PAS ==========## 
+function Is_User_A_SUPER_ADMIN($userId)
+{ #
+    $user = User::where(['id' => $userId, 'is_super_admin' => 1])->get();
+    if (count($user) == 0) {
+        return false;
+    }
+    return true; #Sil est un Super Admin
 }
 
 

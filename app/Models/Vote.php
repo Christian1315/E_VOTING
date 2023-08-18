@@ -26,7 +26,7 @@ class Vote extends Model
 
     public function candidats(): BelongsToMany
     {
-        return $this->BelongsToMany(Candidat::class, 'candidats_votes', 'vote_id', 'candidat_id');
+        return $this->BelongsToMany(Candidat::class, 'candidats_votes', 'vote_id', 'candidat_id')->withPivot("score");
     }
 
     public function electors(): BelongsToMany
@@ -34,7 +34,8 @@ class Vote extends Model
         return $this->BelongsToMany(Elector::class, 'electors_votes', 'vote_id', 'elector_id');
     }
 
-    function status() : BelongsTo {
-        return $this->belongsTo(VoteStatus::class,"status");
+    function status(): BelongsTo
+    {
+        return $this->belongsTo(VoteStatus::class, "status");
     }
 }

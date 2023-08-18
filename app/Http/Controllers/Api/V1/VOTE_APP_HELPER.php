@@ -69,7 +69,7 @@ class VOTE_APP_HELPER extends BASE_HELPER
     static function voteAppLogin($request)
     {
         $formData = $request->all();
-
+        return $formData;
         $elector_vote = ElectorVote::where(["secret_code" => $formData["secret_code"]])->get();
 
         $elector = Elector::where("identifiant", $formData["id"])->get();

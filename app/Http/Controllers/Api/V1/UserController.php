@@ -9,7 +9,8 @@ class UserController extends USER_HELPER
     #VERIFIONS SI LE USER EST AUTHENTIFIE
     public function __construct()
     {
-        $this->middleware(['auth:api', 'scope:api-access'])->only("UpdatePassword");
+        $this->middleware(['auth:api', 'scope:api-access'])->except(["Login"]);
+        $this->middleware("CheckSuperAdmin")->except(["Login"]);
     }
     #GET ALL USERS
     function Users(Request $request)
