@@ -57,14 +57,12 @@ class ELECTOR_HELPER extends BASE_HELPER
 
         #Detection de l'organisation
         if ($user->is_super_admin) { #S'il sagit d'un super_admin
-            $organisation = null;
             $organisationId = null;
         } else { #S'il sagit d'un simple admin
-            $organisation = $user->organisation; #RECUPEARATION DE L'ORGANISATION A LAQUELLE LE USER(admin ou super_admin) APPARTIENT
-            $organisationId = $organisation->id;
+            $organisationId = $user->organisation; #RECUPEARATION DE L'ORGANISATION A LAQUELLE LE USER(admin ou super_admin) APPARTIENT
         }
 
-
+        // return $user;
         $username =  Get_Username($user, $type); ##Get_Username est un helper qui genère le **username** 
 
         ##VERIFIONS SI LE USER EXISTAIT DEJA

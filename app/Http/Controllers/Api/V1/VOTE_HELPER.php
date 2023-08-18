@@ -8,7 +8,6 @@ use App\Models\Elector;
 use App\Models\ElectorVote;
 use App\Models\Vote;
 use App\Models\VoteStatus;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
