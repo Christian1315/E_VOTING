@@ -148,25 +148,6 @@ class VOTE_HELPER extends BASE_HELPER
                 $elector_vote = ElectorVote::find($this_elector_vote->id);
                 $elector_vote->secret_code = Str::uuid();
                 $elector_vote->save();
-
-                // #===== ENVOIE D'SMS AUX ELECTEURS DU VOTE =======~####
-
-                // $sms_login =  Login_To_Frik_SMS();
-
-                // #Crypt du code secret de la table **electors_votes**
-                // // $cryp_code_secret = encrypt($elector_vote->secret_code); 
-                // // $cryp_code_secret = Hash::make($elector_vote->secret_code);
-                // // return $cryp_code_secret;
-
-                // if ($sms_login['status']) {
-                //     $token =  $sms_login['data']['token'];
-                //     $vote_url = env("BASE_URL") . "/vote?id=" . $elector[0]->identifiant . "&token=" . $elector_vote->secret_code;
-                //     Send_SMS(
-                //         $elector[0]->phone,
-                //         "Vous avez été affecté au vote " . $vote->name . " en tant qu'electeur sur e-voting! Cliquez ici pour voter: " . $vote_url,
-                //         $token
-                //     );
-                // }
             }
         }
 
