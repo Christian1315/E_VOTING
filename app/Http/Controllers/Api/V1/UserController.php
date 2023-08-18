@@ -80,7 +80,7 @@ class UserController extends USER_HELPER
     }
 
     #DEMANDE DE REINITIALISATION D'UN PASSWORD
-    function DemandReinitializePassword(Request $request, $id)
+    function DemandReinitializePassword(Request $request)
     {
         #VERIFICATION DE LA METHOD
         if ($this->methodValidation($request->method(), "POST") == False) {
@@ -89,11 +89,11 @@ class UserController extends USER_HELPER
         };
 
         #RECUPERATION D'UN USER VIA SON **id**
-        return $this->_demandReinitializePassword($request, $id);
+        return $this->_demandReinitializePassword($request);
     }
 
     #REINITIALISER UN PASSWORD
-    function ReinitializePassword(Request $request, $id)
+    function ReinitializePassword(Request $request)
     {
         #VERIFICATION DE LA METHOD
         if ($this->methodValidation($request->method(), "POST") == False) {
@@ -102,7 +102,7 @@ class UserController extends USER_HELPER
         };
 
         #RECUPERATION D'UN USER VIA SON **id**
-        return $this->_reinitializePassword($request, $id);
+        return $this->_reinitializePassword($request);
     }
 
     function Logout(Request $request)

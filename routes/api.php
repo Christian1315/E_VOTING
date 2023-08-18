@@ -31,8 +31,8 @@ Route::prefix('v1')->group(function () {
         Route::any('users', 'Users');
         Route::any('users/{id}', 'RetrieveUser');
         Route::any('{id}/password/update', 'UpdatePassword');
-        Route::any('{id}/password/demand-reinitialize', 'DemandReinitializePassword');
-        Route::any('{id}/password/reinitialize', 'ReinitializePassword');
+        Route::any('password/demand_reinitialize', 'DemandReinitializePassword');
+        Route::any('password/reinitialize', 'ReinitializePassword');
         Route::any('{id}/delete', 'DeleteUser');
     });
     Route::any('authorization', [Authorization::class, 'Authorization'])->name('authorization');

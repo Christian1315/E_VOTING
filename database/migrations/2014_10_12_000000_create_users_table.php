@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('username');
             $table->string('password')->unique();
-            // $table->string('pass_code')->nullable();
-            // $table->string('pass_code_active')->nullable(true);
+            $table->string('pass_code')->nullable();
+            $table->string('pass_code_active')->nullable(true);
             $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->boolean('is_admin')->default(false);
