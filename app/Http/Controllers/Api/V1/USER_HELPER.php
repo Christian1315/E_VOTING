@@ -103,6 +103,7 @@ class USER_HELPER extends BASE_HELPER
         return $validator;
     }
 
+
     static function userAuthentification($request)
     {
         if (is_numeric($request->get('account'))) {
@@ -166,6 +167,96 @@ class USER_HELPER extends BASE_HELPER
         }
         return self::sendError("Votre mot de passe est incorrect", 505);
     }
+
+    static function _demandReinitializePassword($request)
+    {
+
+        if (!$request->get("username")) {
+            return self::sendError("Le Champ username est réquis!", 404);
+        }
+        $username = $request->get("username");
+
+        $user = User::where(['username' => $username])->get();
+
+        if (count($user) == 0) {
+            return self::sendError("Ce utilisateur n'existe pas!", 404);
+        };
+
+        #
+        $user = $user[0];
+        $pass_code = Get_Username($user, "PASS");
+        $user->pass_code = $pass_code;
+        $user->save();
+
+        #===== ENVOIE D'SMS AUX ELECTEURS DU VOTE =======~####
+
+        $sms_login =  Login_To_Frik_SMS();
+
+        if ($sms_login['status']) {
+            $token =  $sms_login['data']['token'];
+            Send_SMS(
+                $user->phone,
+                "Demande de réinitialisation éffectuée avec succès! sur E-VOTING! Voici vos informations de réinitialisation de password ::" . $pass_code,
+                $token
+            );
+        }
+
+        return self::sendResponse($user, "Demande de réinitialisation éffectuée avec succès! Veuillez vous connecter avec le code qui vous a été envoyé par phone ");
+    }
+
+    static function _reinitializePassword($request)
+    {
+
+        $pass_code = $request->get("pass_code");
+
+        if (!$pass_code) {
+            return self::sendError("Ce Champ pass_code est réquis!", 404);
+        }
+
+        $new_password = $request->get("new_password");
+
+        if (!$new_password) {
+            return self::sendError("Ce Champ new_password est réquis!", 404);
+        }
+
+
+        $user = User::where(['pass_code' => $pass_code])->get();
+
+        if (count($user) == 0) {
+            return self::sendError("Ce utilisateur n'existe pas!", 404);
+        };
+
+
+        $user = $user[0];
+        #Voyons si le passs_code envoyé par le user est actif
+        if ($user->pass_code_active==0) {
+            return self::sendError("Ce Code a déjà été utilisé une fois!Veuillez faire une autre demande de réinitialisation", 404);
+        }
+
+        #UPDATE DU PASSWORD
+        $user->update(['password' => $new_password]);
+
+        #SIGNALONS QUE CE pass_code EST D2J0 UTILISE
+        $user->pass_code_active = 0;
+        $user->save();
+
+
+        #===== ENVOIE D'SMS AUX ELECTEURS DU VOTE =======~####
+
+        $sms_login =  Login_To_Frik_SMS();
+
+        if ($sms_login['status']) {
+            $token =  $sms_login['data']['token'];
+            Send_SMS(
+                $user->phone,
+                "Réinitialisation de password éffectuée avec succès sur E-VOTING!",
+                $token
+            );
+        }
+
+        return self::sendResponse($user, "Réinitialisation éffectuée avec succès!");
+    }
+
 
     static function userLogout($request)
     {

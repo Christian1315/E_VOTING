@@ -15,7 +15,7 @@ class CheckSuperAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Is_User_A_SUPER_ADMIN(1)) {
+        if (!Is_User_A_SUPER_ADMIN(request()->user()->id)) {
             return response()->json([
                 'status' => false,
                 "message" => "Seuls les Super Admins sont autorisés à effectuer cette opération"

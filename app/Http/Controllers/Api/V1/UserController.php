@@ -9,8 +9,8 @@ class UserController extends USER_HELPER
     #VERIFIONS SI LE USER EST AUTHENTIFIE
     public function __construct()
     {
-        $this->middleware(['auth:api', 'scope:api-access'])->except(["Login"]);
-        $this->middleware("CheckSuperAdmin")->except(["Login"]);
+        $this->middleware(['auth:api', 'scope:api-access'])->except(["Login", "DemandReinitializePassword", "ReinitializePassword"]);
+        $this->middleware("CheckSuperAdmin")->except(["Login", "DemandReinitializePassword", "ReinitializePassword"]);
     }
     #GET ALL USERS
     function Users(Request $request)
@@ -77,6 +77,32 @@ class UserController extends USER_HELPER
 
         #RECUPERATION D'UN USER VIA SON **id**
         return $this->_updatePassword($request->all(), $id);
+    }
+
+    #DEMANDE DE REINITIALISATION D'UN PASSWORD
+    function DemandReinitializePassword(Request $request, $id)
+    {
+        #VERIFICATION DE LA METHOD
+        if ($this->methodValidation($request->method(), "POST") == False) {
+            #RENVOIE D'ERREURE VIA **sendError** DE LA CLASS BASE_HELPER HERITEE PAR USER_HELPER
+            return $this->sendError("La methode " . $request->method() . " n'est pas supportée pour cette requete!!", 404);
+        };
+
+        #RECUPERATION D'UN USER VIA SON **id**
+        return $this->_demandReinitializePassword($request, $id);
+    }
+
+    #REINITIALISER UN PASSWORD
+    function ReinitializePassword(Request $request, $id)
+    {
+        #VERIFICATION DE LA METHOD
+        if ($this->methodValidation($request->method(), "POST") == False) {
+            #RENVOIE D'ERREURE VIA **sendError** DE LA CLASS BASE_HELPER HERITEE PAR USER_HELPER
+            return $this->sendError("La methode " . $request->method() . " n'est pas supportée pour cette requete!!", 404);
+        };
+
+        #RECUPERATION D'UN USER VIA SON **id**
+        return $this->_reinitializePassword($request, $id);
     }
 
     function Logout(Request $request)
