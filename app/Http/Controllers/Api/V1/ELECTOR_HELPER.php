@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\Candidat;
 use App\Models\Elector;
-use App\Models\Organisation;
 use App\Models\User;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;

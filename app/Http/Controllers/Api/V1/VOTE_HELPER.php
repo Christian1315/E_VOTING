@@ -88,10 +88,10 @@ class VOTE_HELPER extends BASE_HELPER
         } else { #S'IL N'EST PAS UN SUPER ADMIN
             #ON RECUPERE SON ORGANISATION
             $user_organisation_id = $user->organisation; #recuperation de l'ID de l'organisation affectée au user
-            $organisation = Get_User_Organisation($user_organisation_id);
-            $organisation_id = $organisation->id;
+            // $organisation = Get_User_Organisation($user_organisation_id);
+            // $organisation_id = $organisation->id;
         }
-        $formData["organisation"] = $organisation_id;
+        $formData["organisation"] = $user_organisation_id;
 
         #TRAITEMENT DU CHAMP **candidats** renseigné PAR LE USER
         $candidats_ids = $formData["candidats"];
