@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\Admin;
 use App\Models\Candidat;
 use App\Models\Organisation;
-use App\Models\User;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 
@@ -48,7 +46,6 @@ class CANDIDAT_HELPER extends BASE_HELPER
 
     static function createCandidat($request)
     {
-
         $formData = $request->all();
         #ON VERIFIER SI L'ORGANISATION EXISTE EN AU NOM DU USER QUI CREE LE CANDIDAT
 
@@ -76,7 +73,7 @@ class CANDIDAT_HELPER extends BASE_HELPER
                 return self::sendError("Vous ne faites pas parti de cette organistion", 404);
             }
 
-            $formData["organisation"] = $organisation->id;
+            $formData["organisation"] = $user_organisation_id;
         }
 
 

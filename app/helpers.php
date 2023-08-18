@@ -61,3 +61,9 @@ function Get_CandidatVote($candidatId, $voteId)
 {
     return CandidatVote::where(["candidat_id" => $candidatId, "vote_id" => $voteId])[0]->get();
 }
+
+
+function Get_User_Organisation($id)
+{
+    return Organisation::where("id", $id)->get();
+}
