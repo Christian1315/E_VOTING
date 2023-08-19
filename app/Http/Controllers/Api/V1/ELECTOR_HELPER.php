@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Elector;
+use App\Models\Organisation;
 use App\Models\User;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
@@ -15,9 +16,9 @@ class ELECTOR_HELPER extends BASE_HELPER
     static function elector_rules(): array
     {
         return [
-            'name' => ['required', Rule::unique('electors')],
-            'phone' => ['required', Rule::unique("electors")],
-            'email' => ['required', "email", Rule::unique("electors")],
+            'name' => ['required'],
+            'phone' => ['required'],
+            'email' => ['required', "email"],
         ];
     }
 
@@ -56,21 +57,20 @@ class ELECTOR_HELPER extends BASE_HELPER
         #Detection de l'organisation
         if ($user->is_super_admin) { #S'il sagit d'un super_admin
             $organisationId = null;
+            $organisation_name = "Super Admin";
         } else { #S'il sagit d'un simple admin
             $organisationId = $user->organisation; #RECUPEARATION DE L'ORGANISATION A LAQUELLE LE USER(admin ou super_admin) APPARTIENT
+            $organisation = Organisation::find($organisationId);
+            $organisation_name = $organisation->name;
         }
 
         // return $user;
         $username =  Get_Username($user, $type); ##Get_Username est un helper qui genère le **username** 
 
-        ##VERIFIONS SI LE USER EXISTAIT DEJA
-        $user = User::where("phone", $formData['phone'])->get();
-        if (count($user) != 0) {
-            return self::sendError("Un compte existe déjà au nom de ce identifiant!", 404);
-        }
-        $user = User::where("email", $formData['email'])->get();
-        if (count($user) != 0) {
-            return self::sendError("Un compte existe déjà au nom de ce identifiant!!", 404);
+        ##VERIFIONS SI CE ELECTEUR EXISTAIT DEJA
+        $elector = Elector::where(["phone" => $formData['phone'], "email" => $formData['email'], "owner" => request()->user()->id])->get();
+        if (count($elector) != 0) {
+            return self::sendError("Un compte existe déjà au nom de ce phone et ce mail!", 404);
         }
 
         $userData = [
@@ -103,7 +103,7 @@ class ELECTOR_HELPER extends BASE_HELPER
 
             Send_SMS(
                 $formData['phone'],
-                "Votre compte Utilisateur a été crée avec succès sur E-VOTING. Voici ci-dessous vos identifiants de connexion: Username::" . $username,
+                "Vous avez été ajouté.e comme un electeur à l'organisation " . $organisation_name . " sur E-VOTING. Voici ci-dessous vos identifiants de connexion: Username::" . $username,
                 $token
             );
         }
