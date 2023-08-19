@@ -83,6 +83,8 @@ class ADMIN_HELPER extends BASE_HELPER
             "email" => $formData['email'],
             "password" => $username,
             "organisation" => $formData['organisation'],
+            "profil_id" => 5, #UNE AGENCE
+            "rang_id" => 2, #UN MODERATEUR
         ];
 
         // return $formData;
@@ -90,8 +92,10 @@ class ADMIN_HELPER extends BASE_HELPER
 
         $user = User::create($userData);
         $user->is_admin = true;
-        $user->save();
+        $user->owner = request()->user()->id;
 
+        $user->save();
+        // return request()->user()->id;
         ##ENREGISTREMENT DE L'ADMIN DANS LA DB
         $admin = Admin::create($formData);
         $admin->as_user = $user->id;

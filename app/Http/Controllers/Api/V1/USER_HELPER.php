@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Models\Right;
 use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Validation\Rule;
@@ -104,6 +105,34 @@ class USER_HELPER extends BASE_HELPER
     }
 
 
+
+    ##======== ATTACH VALIDATION =======##
+    static function ATTACH_rules(): array
+    {
+        return [
+            'user_id' => 'required',
+            'right_id' => 'required',
+        ];
+    }
+
+    static function ATTACH_messages(): array
+    {
+        return [
+            // 'user_id.required' => 'Veuillez renseigner soit votre username,votre phone ou soit votre email',
+            // 'password.required' => 'Le champ Password est réquis!',
+        ];
+    }
+
+    static function ATTACH_Validator($formDatas)
+    {
+        #
+        $rules = self::ATTACH_rules();
+        $messages = self::ATTACH_messages();
+
+        $validator = Validator::make($formDatas, $rules, $messages);
+        return $validator;
+    }
+
     static function userAuthentification($request)
     {
         if (is_numeric($request->get('account'))) {
@@ -120,7 +149,24 @@ class USER_HELPER extends BASE_HELPER
         if (Auth::attempt($credentials)) { #SI LE USER EST AUTHENTIFIE
             $user = Auth::user();
             $token = $user->createToken('MyToken', ['api-access'])->accessToken;
+            $user['rang'] = $user->rang;
+            $user['profil'] = $user->profil;
+            // $user['rights'] = $user->rights;
             $user['token'] = $token;
+
+            #renvoie des droits du user 
+            $attached_rights = $user->drts; #drts represente les droits associés au user par relation #Les droits attachés
+            // return $attached_rights;
+
+            if ($attached_rights->count() == 0) { #si aucun droit ne lui est attaché
+                if (Is_User_A_SUPER_ADMIN($user->id)) { #s'il est un admin
+                    $user['rights'] = All_Rights();
+                } else {
+                    $user['rights'] = User_Rights($user->rang['id'], $user->profil['id']);
+                }
+            } else {
+                $user['rights'] = $attached_rights; #Il prend uniquement les droits qui lui sont attachés
+            }
 
             #RENVOIE D'ERREURE VIA **sendResponse** DE LA CLASS BASE_HELPER
             return self::sendResponse($user, 'Vous etes connecté(e) avec succès!!');
@@ -132,11 +178,25 @@ class USER_HELPER extends BASE_HELPER
 
     static function getUsers()
     {
-        $users =  User::all();
+        $users =  User::with(["rang", "profil"])->where(["owner" => request()->user()->id])->get();
 
         foreach ($users as $user) {
             $user_organisation_id = $user->organisation;
             $user["belong_to_organisation"] = Get_User_Organisation($user_organisation_id);
+
+            #renvoie des droits du user 
+            $attached_rights = $user->drts; #drts represente les droits associés au user par relation #Les droits attachés
+            // return $attached_rights;
+
+            if ($attached_rights->count() == 0) { #si aucun droit ne lui est attaché
+                if (Is_User_A_SUPER_ADMIN($user->id)) { #s'il est un admin
+                    $user['rights'] = All_Rights();
+                } else {
+                    $user['rights'] = User_Rights($user->rang['id'], $user->profil['id']);
+                }
+            } else {
+                $user['rights'] = $attached_rights; #Il prend uniquement les droits qui lui sont attachés
+            }
         }
         return self::sendResponse($users, 'Touts les utilisatreurs récupérés avec succès!!');
     }
@@ -151,6 +211,22 @@ class USER_HELPER extends BASE_HELPER
         $user = $user[0];
         $user_organisation_id = $user->organisation;
         $user["belong_to_organisation"] = Get_User_Organisation($user_organisation_id);
+
+        #renvoie des droits du user 
+        $attached_rights = $user->drts; #drts represente les droits associés au user par relation #Les droits attachés
+        // return $attached_rights;
+
+        if ($attached_rights->count() == 0) { #si aucun droit ne lui est attaché
+            if (Is_User_A_SUPER_ADMIN($id)) { #s'il est un admin
+                $user['rights'] = All_Rights();
+                return "super_admin";
+            } else {
+                $user['rights'] = User_Rights($user->rang['id'], $user->profil['id']);
+            }
+        } else {
+            $user['rights'] = $attached_rights; #Il prend uniquement les droits qui lui sont attachés
+        }
+
         return self::sendResponse($user, "Utilisateur récupéré(e) avec succès:!!");
     }
 
@@ -229,7 +305,7 @@ class USER_HELPER extends BASE_HELPER
 
         $user = $user[0];
         #Voyons si le passs_code envoyé par le user est actif
-        if ($user->pass_code_active==0) {
+        if ($user->pass_code_active == 0) {
             return self::sendError("Ce Code a déjà été utilisé une fois!Veuillez faire une autre demande de réinitialisation", 404);
         }
 
@@ -264,5 +340,47 @@ class USER_HELPER extends BASE_HELPER
         // DELETING ALL TOKENS REMOVED
         // Artisan::call('passport:purge');
         return self::sendResponse([], 'Vous etes déconnecté(e) avec succès!');
+    }
+
+    static function rightAttach($formData)
+    {
+        $user = User::where(['id' => $formData['user_id'], 'owner' => request()->user()->id])->get();
+        if (count($user) == 0) {
+            return self::sendError("Ce utilisateur n'existe pas!", 404);
+        };
+
+        $right = Right::where('id', $formData['right_id'])->get();
+        if (count($right) == 0) {
+            return self::sendError("Ce right n'existe pas!", 404);
+        };
+
+        $user = User::find($formData['user_id']);
+        $right = Right::find($formData['right_id']);
+
+        $right->user_id = $user->id;
+        $right->save();
+
+        return self::sendResponse([], "User attaché au right avec succès!!");
+    }
+
+    static function rightDesAttach($formData)
+    {
+        $user = User::where(['id' => $formData['user_id'], 'owner' => request()->user()->id])->get();
+        if (count($user) == 0) {
+            return self::sendError("Ce utilisateur n'existe pas!", 404);
+        };
+
+        $right = Right::where('id', $formData['right_id'])->get();
+        if (count($right) == 0) {
+            return self::sendError("Ce right n'existe pas!", 404);
+        };
+
+        $user = User::find($formData['user_id']);
+        $right = Right::find($formData['right_id']);
+
+        $right->user_id = null;
+        $right->save();
+
+        return self::sendResponse([], "User Dettaché du right avec succès!!");
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Models\CandidatVote;
 use App\Models\Organisation;
+use App\Models\Right;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 
@@ -63,6 +64,21 @@ function Is_User_A_SUPER_ADMIN($userId)
     }
     return true; #Sil est un Super Admin
 }
+
+##======== CE HELPER PERMET DE RECUPERER LES DROITS D'UN UTILISATEUR ==========## 
+function User_Rights($rangId, $profilId)
+{ #
+    $rights = Right::with(["action", "profil", "rang"])->where(["rang" => $rangId, "profil" => $profilId])->get();
+    return $rights;
+}
+
+##======== CE HELPER PERMET DE RECUPERER TOUTS LES DROITS PAR DEFAUT ==========## 
+function All_Rights()
+{ #
+    $allrights = Right::with(["action", "profil", "rang"])->get();
+    return $allrights;
+}
+
 
 
 function Get_User_Organisation($id)

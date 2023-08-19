@@ -16,13 +16,42 @@ return new class extends Migration
             $table->string('name');
             $table->string('username');
             $table->string('password')->unique();
+
+            #CES DEUX LIGNES EXISTENT EN LIGNE(ELLES ONT ETE AJOUTEES PAR MIGRATIONS PAR COMMANDE)
             $table->string('pass_code')->nullable();
             $table->string('pass_code_active')->nullable(true);
+            #####
+
+            #CES DEUX LIGNES N'EXISTENT PAS EN LIGNE
+            $table->foreignId("rang_id")
+                ->nullable()
+                ->constrained('rangs', 'id')
+                ->onUpdate('CASCADE')
+                ->onDelete('CASCADE');
+
+            $table->foreignId("profil_id")
+                ->nullable()
+                ->constrained('profils', 'id')
+                ->onUpdate('CASCADE')
+                ->onDelete('CASCADE');
+            ######
+
+
+            $table->foreignId("owner")
+                ->nullable()
+                ->constrained('users', 'id')
+                ->onUpdate('CASCADE')
+                ->onDelete('CASCADE');
+
+
             $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->boolean('is_admin')->default(false);
             $table->boolean('is_super_admin')->default(false);
             $table->integer('organisation')->nullable();
+
+
+
 
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
