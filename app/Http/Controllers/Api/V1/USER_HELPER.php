@@ -255,12 +255,12 @@ class USER_HELPER extends BASE_HELPER
         $user = User::where(['username' => $username])->get();
 
         if (count($user) == 0) {
-            return self::sendError("Ce utilisateur n'existe pas!", 404);
+            return self::sendError("Ce compte n'existe pas!", 404);
         };
 
         #
         $user = $user[0];
-        $pass_code = Get_Username($user, "PASS");
+        $pass_code = Get_passCode($user, "PASS");
         $user->pass_code = $pass_code;
         $user->save();
 
@@ -295,13 +295,11 @@ class USER_HELPER extends BASE_HELPER
             return self::sendError("Ce Champ new_password est réquis!", 404);
         }
 
-
         $user = User::where(['pass_code' => $pass_code])->get();
 
         if (count($user) == 0) {
-            return self::sendError("Ce utilisateur n'existe pas!", 404);
+            return self::sendError("Ce code n'est pas correct!", 404);
         };
-
 
         $user = $user[0];
         #Voyons si le passs_code envoyé par le user est actif

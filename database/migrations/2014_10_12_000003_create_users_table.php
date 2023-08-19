@@ -19,7 +19,7 @@ return new class extends Migration
 
             #CES DEUX LIGNES EXISTENT EN LIGNE(ELLES ONT ETE AJOUTEES PAR MIGRATIONS PAR COMMANDE)
             $table->string('pass_code')->nullable();
-            $table->string('pass_code_active')->nullable(true);
+            $table->string('pass_code_active')->default(true);
             #####
 
             #CES DEUX LIGNES N'EXISTENT PAS EN LIGNE
@@ -44,8 +44,8 @@ return new class extends Migration
                 ->onDelete('CASCADE');
 
 
-            $table->string('email')->unique();
-            $table->string('phone')->unique();
+            $table->string('email');
+            $table->string('phone');
             $table->boolean('is_admin')->default(false);
             $table->boolean('is_super_admin')->default(false);
             $table->integer('organisation')->nullable();
