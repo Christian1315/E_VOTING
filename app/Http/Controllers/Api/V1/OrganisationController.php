@@ -10,7 +10,7 @@ class OrganisationController extends ORGANISATION_HELPER
     public function __construct()
     {
         $this->middleware(['auth:api', 'scope:api-access']);
-        $this->middleware("CheckSuperAdmin");
+        $this->middleware("CheckSuperAdmin")->except(["RetrieveOrganisation"]);
     }
 
     #AJOUT D'UNE ORGANISATION

@@ -203,7 +203,7 @@ class USER_HELPER extends BASE_HELPER
 
     static function retrieveUsers($id)
     {
-        $user = User::with(["my_admins"])->where('id', $id)->get();
+        $user = User::where(['id' => $id, "owner" => request()->user()->id])->get();
         if ($user->count() == 0) {
             return self::sendError("Ce utilisateur n'existe pas!", 404);
         }
@@ -262,6 +262,7 @@ class USER_HELPER extends BASE_HELPER
         $user = $user[0];
         $pass_code = Get_passCode($user, "PASS");
         $user->pass_code = $pass_code;
+        $user->pass_code_active = 1;
         $user->save();
 
         #===== ENVOIE D'SMS AUX ELECTEURS DU VOTE =======~####

@@ -17,12 +17,9 @@ return new class extends Migration
             $table->string('username');
             $table->string('password')->unique();
 
-            #CES DEUX LIGNES EXISTENT EN LIGNE(ELLES ONT ETE AJOUTEES PAR MIGRATIONS PAR COMMANDE)
             $table->string('pass_code')->nullable();
             $table->string('pass_code_active')->default(true);
-            #####
 
-            #CES DEUX LIGNES N'EXISTENT PAS EN LIGNE
             $table->foreignId("rang_id")
                 ->nullable()
                 ->constrained('rangs', 'id')
