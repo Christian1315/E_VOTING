@@ -10,7 +10,7 @@ class UserController extends USER_HELPER
     public function __construct()
     {
         $this->middleware(['auth:api', 'scope:api-access'])->except(["Login", "DemandReinitializePassword", "ReinitializePassword"]);
-        $this->middleware("CheckSuperAdmin")->except(["Login", "DemandReinitializePassword", "ReinitializePassword"]);
+        // $this->middleware("CheckSuperAdmin")->except(["Login", "DemandReinitializePassword", "ReinitializePassword"]);
     }
     #GET ALL USERS
     function Users(Request $request)
