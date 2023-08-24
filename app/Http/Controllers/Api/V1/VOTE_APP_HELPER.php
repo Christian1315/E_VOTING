@@ -73,15 +73,15 @@ class VOTE_APP_HELPER extends BASE_HELPER
             return self::sendError("Echec de connexion! Vous n'etes pas un electeur", 404);
         }
 
+        #on verifie s'il a été vraiment affecté.e à ce vote
+        if ($elector_vote->count() == 0) {
+            return self::sendError("Ce vote n'existe pas!", 404);
+        }
         #Verifie si l'electeur a déjà voter pour ce vote
         if ($elector_vote[0]->voted) {
             return self::sendError("Merci d'avoir déjà voter pour ce vote!", 404);
         }
 
-        #on verifie s'il a été vraiment affecté.e à ce vote
-        if ($elector_vote->count() == 0) {
-            return self::sendError("Ce vote n'existe pas!", 404);
-        }
 
 
 
