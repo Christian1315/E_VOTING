@@ -2,15 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\Candidat;
 use App\Models\CandidatVote;
 use App\Models\Elector;
 use App\Models\ElectorVote;
 use App\Models\Vote;
-use App\Models\VoteStatus;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 
 
@@ -69,7 +65,7 @@ class VOTE_APP_HELPER extends BASE_HELPER
     static function voteAppLogin($request)
     {
         $formData = $request->all();
-        return $formData;
+        // return $formData;
         $elector_vote = ElectorVote::where(["secret_code" => $formData["secret_code"]])->get();
 
         $elector = Elector::where("identifiant", $formData["id"])->get();
