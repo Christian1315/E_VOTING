@@ -47,7 +47,7 @@ function Get_passCode($user, $type)
 function Login_To_Frik_SMS()
 {
     $response = Http::post(env("SEND_SMS_API_URL") . "/api/v1/login", [
-        "username" => "admin",
+        "account" => "admin",
         "password" => "admin",
     ]);
 
