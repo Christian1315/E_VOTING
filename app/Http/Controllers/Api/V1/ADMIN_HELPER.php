@@ -119,13 +119,13 @@ class ADMIN_HELPER extends BASE_HELPER
 
     static function getAdmins()
     {
-        $admins =  Admin::with(['parent', 'owner', 'organisation'])->where(["owner" => request()->user()->id])->orderBy("id", "desc")->get();
+        $admins =  Admin::with(['parent', 'owner', 'organisation'])->where(["owner" => request()->user()->id, "visible" => 1])->orderBy("id", "desc")->get();
         return self::sendResponse($admins, 'Tout les admins récupérés avec succès!!');
     }
 
     static function retrieveAdmins($id)
     {
-        $admin = Admin::with(['parent', 'owner', 'organisation'])->where(["owner" => request()->user()->id, "id" => $id])->get();
+        $admin = Admin::with(['parent', 'owner', 'organisation'])->where(["owner" => request()->user()->id, "id" => $id, "visible" => 1])->get();
         if ($admin->count() == 0) {
             return self::sendError("Cet admin n'existe pas!", 404);
         }
@@ -135,7 +135,7 @@ class ADMIN_HELPER extends BASE_HELPER
     static function updateAdmins($request, $id)
     {
         $formData = $request->all();
-        $admin = Admin::where(['id' => $id, 'owner' => request()->user()->id])->get();
+        $admin = Admin::where(['id' => $id, 'owner' => request()->user()->id, "visible" => 1])->get();
         if ($admin->count() == 0) {
             return self::sendError("Cet Admin n'existe pas!", 404);
         }
@@ -172,12 +172,14 @@ class ADMIN_HELPER extends BASE_HELPER
 
     static function adminDelete($id)
     {
-        $admin = Admin::where(['id' => $id, 'owner' => request()->user()->id])->get();
+        $admin = Admin::where(['id' => $id, 'owner' => request()->user()->id, "visible" => 1])->get();
         if (count($admin) == 0) {
             return self::sendError("Cet admin n'existe pas!", 404);
         };
         $admin = $admin[0];
-        $admin->delete();
+        $admin->visible = 0;
+        $admin->deleted_at = now();
+        $admin->save();
         return self::sendResponse($admin, 'Cet admin a été supprimé avec succès!');
     }
 }

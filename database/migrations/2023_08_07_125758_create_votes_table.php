@@ -35,8 +35,6 @@ return new class extends Migration
 
             $table->string('start_vote')->nullable();
             $table->string('end_vote')->nullable();
-            $table->boolean('visible')->default(true);
-            $table->string('delete_at')->nullable();
             $table->timestamps();
         });
     }

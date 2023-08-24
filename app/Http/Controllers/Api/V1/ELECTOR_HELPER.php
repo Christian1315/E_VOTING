@@ -113,13 +113,13 @@ class ELECTOR_HELPER extends BASE_HELPER
 
     static function getElectors()
     {
-        $elector =  Elector::with(['owner', "votes"])->where(["owner" => request()->user()->id])->orderBy("id", "desc")->get();
+        $elector =  Elector::with(['owner', "votes"])->where(["owner" => request()->user()->id, "visible" => 1])->orderBy("id", "desc")->get();
         return self::sendResponse($elector, 'Tout les electeurs récupérés avec succès!!');
     }
 
     static function retrieveElectors($id)
     {
-        $elector = Elector::with(['owner', "votes"])->where(["owner" => request()->user()->id, "id" => $id])->get();
+        $elector = Elector::with(['owner', "votes"])->where(["owner" => request()->user()->id, "id" => $id, "visible" => 1])->get();
         if ($elector->count() == 0) {
             return self::sendError("Ce elector n'existe pas!", 404);
         }
@@ -155,7 +155,9 @@ class ELECTOR_HELPER extends BASE_HELPER
             return self::sendError("Ce Electeur n'existe pas!", 404);
         };
         $elector = $elector[0];
-        $elector->delete();
+        $elector->visible = 0;
+        $elector->deleted_at = now();
+        $elector->save();
         return self::sendResponse($elector, 'Ce electeur a été supprimé avec succès!');
     }
 }

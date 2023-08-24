@@ -98,7 +98,7 @@ class VOTE_HELPER extends BASE_HELPER
         // return $candidats;
         // $candidats_ids = explode(",", $candidats);
         foreach ($candidats_ids as $id) {
-            $candidat = Candidat::where(["id" => $id, "owner" => $user->id])->get();
+            $candidat = Candidat::where(["id" => $id, "owner" => $user->id,"visible" => 1])->get();
             if ($candidat->count() == 0) {
                 return self::sendError("Le candidat d'id :" . $id . " n'existe pas!", 404);
             }
@@ -109,7 +109,7 @@ class VOTE_HELPER extends BASE_HELPER
             $electors_ids = $formData["electors"];
             // $electors_ids = explode(",", $electors);
             foreach ($electors_ids as $id) {
-                $elector = Elector::where(["id" => $id, "owner" => $user->id])->get();
+                $elector = Elector::where(["id" => $id, "owner" => $user->id,"visible" => 1])->get();
                 if ($elector->count() == 0) {
                     return self::sendError("L'electeur d'id :" . $id . " n'existe pas!", 404);
                 }
@@ -125,7 +125,7 @@ class VOTE_HELPER extends BASE_HELPER
             $this_candidate_vote = CandidatVote::where(["candidat_id" => $id, "vote_id" => $vote->id])->get();
             #On verifie d'abord si ce attachement existait déjà 
             if ($this_candidate_vote->count() == 0) {
-                $candidat = Candidat::where(["id" => $id, "owner" => $user->id])->get();
+                $candidat = Candidat::where(["id" => $id, "owner" => $user->id, "visible" => 1])->get();
                 $vote->candidats()->attach($candidat);
             }
         }
@@ -156,13 +156,13 @@ class VOTE_HELPER extends BASE_HELPER
 
     static function getVotes()
     {
-        $vote =  Vote::with(["status", 'owner', "candidats", "electors"])->where(["owner" => request()->user()->id])->orderBy("id", "desc")->get();
+        $vote =  Vote::with(["status", 'owner', "candidats", "electors"])->where(["owner" => request()->user()->id, "visible" => 1])->orderBy("id", "desc")->get();
         return self::sendResponse($vote, 'Tout les votes récupérés avec succès!!');
     }
 
     static function retrieveVotes($id)
     {
-        $vote = Vote::with(["status", 'owner', "candidats", "electors"])->where(["owner" => request()->user()->id, "id" => $id])->get();
+        $vote = Vote::with(["status", 'owner', "candidats", "electors"])->where(["owner" => request()->user()->id, "id" => $id, "visible" => 1])->get();
         if ($vote->count() == 0) {
             return self::sendError("Ce vote n'existe pas!", 404);
         }
@@ -174,7 +174,7 @@ class VOTE_HELPER extends BASE_HELPER
         $formData = $request->all();
         $user = request()->user();
 
-        $vote = Vote::where(['id' => $id, 'owner' => request()->user()->id])->get();
+        $vote = Vote::where(['id' => $id, 'owner' => request()->user()->id, "visible" => 1])->get();
         if ($vote->count() == 0) {
             return self::sendError("Ce vote n'existe pas!", 404);
         }
@@ -183,7 +183,7 @@ class VOTE_HELPER extends BASE_HELPER
 
         #FILTRAGE POUR EVITER LES DOUBLONS
         if ($request->get("name")) {
-            $name = Vote::where(['name' => $formData['name'], 'owner' => request()->user()->id])->get();
+            $name = Vote::where(['name' => $formData['name'], 'owner' => request()->user()->id, "visible" => 1])->get();
 
             if (!count($name) == 0) {
                 return self::sendError("Ce name existe déjà!!", 404);
@@ -195,7 +195,7 @@ class VOTE_HELPER extends BASE_HELPER
             $electors_ids = $formData["electors"];
             // $electors_ids = explode(",", $electors);
             foreach ($electors_ids as $id) {
-                $elector = Elector::where(["id" => $id, "owner" => $user->id])->get();
+                $elector = Elector::where(["id" => $id, "owner" => $user->id, "visible" => 1])->get();
                 if ($elector->count() == 0) {
                     return self::sendError("L'electeur d'id :" . $id . " n'existe pas!", 404);
                 }
@@ -206,7 +206,7 @@ class VOTE_HELPER extends BASE_HELPER
                 $this_elector_vote = ElectorVote::where(["elector_id" => $id, "vote_id" => $vote->id])->get();
                 #On verifie d'abord si ce attachement existait déjà 
                 if ($this_elector_vote->count() == 0) {
-                    $elector = Elector::where(["id" => $id, "owner" => $user->id])->get();
+                    $elector = Elector::where(["id" => $id, "owner" => $user->id, "visible" => 1])->get();
                     $vote->electors()->attach($elector);
                 }
             }
@@ -241,14 +241,13 @@ class VOTE_HELPER extends BASE_HELPER
 
     static function voteDelete($id)
     {
-        $vote = Vote::where(['id' => $id, 'owner' => request()->user()->id])->get();
+        $vote = Vote::where(['id' => $id, 'owner' => request()->user()->id, "visible" => 1])->get();
         if (count($vote) == 0) {
             return self::sendError("Ce Vote n'existe pas!", 404);
         };
         $vote = $vote[0];
-        $vote->visible = false;
-        $vote->delete_at = now();
-        // return $vote;
+        $vote->visible = 0;
+        $vote->deleted_at = now();
         $vote->save();
         return self::sendResponse($vote, 'Ce Vote a été supprimé avec succès!');
     }
@@ -256,12 +255,12 @@ class VOTE_HELPER extends BASE_HELPER
     static function AffectToElector($request)
     {
         $formData = $request->all();
-        $elector = Elector::where(['id' => $formData['elector_id'], 'owner' => request()->user()->id])->get();
+        $elector = Elector::where(['id' => $formData['elector_id'], 'owner' => request()->user()->id, "visible" => 1])->get();
         if ($elector->count() == 0) {
             return self::sendError("Ce electeur n'existe pas!", 404);
         };
 
-        $vote = Vote::where(['id' => $formData['vote_id'], 'owner' => request()->user()->id])->get();
+        $vote = Vote::where(['id' => $formData['vote_id'], 'owner' => request()->user()->id, "visible" => 1])->get();
         if ($vote->count() == 0) {
             return self::sendError("Ce vote n'existe pas!", 404);
         };
@@ -296,7 +295,7 @@ class VOTE_HELPER extends BASE_HELPER
         $user = request()->user();
 
 
-        $vote = Vote::where(["id" => $vote_id, "owner" => $user->id])->get();
+        $vote = Vote::where(["id" => $vote_id, "owner" => $user->id, "visible" => 1])->get();
         if ($vote->count() == 0) {
             return self::sendError("Ce vote n'existe pas!", 404);
         };
@@ -313,13 +312,9 @@ class VOTE_HELPER extends BASE_HELPER
         $vote->save();
         // return $electors;
         foreach ($electors as $elector) {
-            // return $elector->id;
             $this_elector_vote = ElectorVote::where(["elector_id" => $elector->id, "vote_id" => $vote_id])->get();
 
             $this_elector_vote = $this_elector_vote[0];
-            // $elector_vote = ElectorVote::find($this_elector_vote->id);
-            // $elector_vote->secret_code = Str::uuid();
-            // $elector_vote->save();
 
             #===== ENVOIE D'SMS AUX ELECTEURS DU VOTE =======~####
 

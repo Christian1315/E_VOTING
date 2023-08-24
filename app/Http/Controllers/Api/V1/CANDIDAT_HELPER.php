@@ -96,13 +96,13 @@ class CANDIDAT_HELPER extends BASE_HELPER
 
     static function getCandidats()
     {
-        $candidat =  Candidat::with(['owner', 'belong_to_organisation', "votes"])->where(["owner" => request()->user()->id])->orderBy("id", "desc")->get();
+        $candidat =  Candidat::with(['owner', 'belong_to_organisation', "votes"])->where(["owner" => request()->user()->id, "visible" => 1])->orderBy("id", "desc")->get();
         return self::sendResponse($candidat, 'Tout les candidats récupérés avec succès!!');
     }
 
     static function retrieveCandidats($id)
     {
-        $candidat = Candidat::with(['owner', 'belong_to_organisation', "votes"])->where(["owner" => request()->user()->id, "id" => $id])->get();
+        $candidat = Candidat::with(['owner', 'belong_to_organisation', "votes"])->where(["owner" => request()->user()->id, "id" => $id, "visible" => 1])->get();
         if ($candidat->count() == 0) {
             return self::sendError("Ce Candidat n'existe pas!", 404);
         }
@@ -174,7 +174,9 @@ class CANDIDAT_HELPER extends BASE_HELPER
             return self::sendError("Cet Candidat n'existe pas!", 404);
         };
         $candidat = $candidat[0];
-        $candidat->delete();
+        $candidat->visible = 0;
+        $candidat->deleted_at = now();
+        $candidat->save();
         return self::sendResponse($candidat, 'Cet Candidat a été supprimé avec succès!');
     }
 }

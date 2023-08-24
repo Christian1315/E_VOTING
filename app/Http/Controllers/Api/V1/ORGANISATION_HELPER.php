@@ -61,13 +61,13 @@ class ORGANISATION_HELPER extends BASE_HELPER
 
     static function getOrganisations()
     {
-        $organisations =  Organisation::orderBy("id", "desc")->get();
+        $organisations =  Organisation::where(["visible" => 1])->orderBy("id", "desc")->get();
         return self::sendResponse($organisations, 'Toutes les organisations récupérés avec succès!!');
     }
 
     static function retrieveOrganisations($id)
     {
-        $organisation = Organisation::where('id', $id)->get();
+        $organisation = Organisation::where(['id' => $id, "visible" => 1])->get();
         if ($organisation->count() == 0) {
             return self::sendError("Cette organisation n'existe pas!", 404);
         }
@@ -119,7 +119,9 @@ class ORGANISATION_HELPER extends BASE_HELPER
             return self::sendError("Cette Organisation n'existe pas!", 404);
         };
         $organisation = $organisation[0];
-        $organisation->delete();
+        $organisation->visible = 0;
+        $organisation->deleted_at = now();
+        $organisation->save();
         return self::sendResponse($organisation, 'Cette Organisation a été supprimée avec succès!');
     }
 }
