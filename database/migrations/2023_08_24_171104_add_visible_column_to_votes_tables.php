@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('votes', function (Blueprint $table) {
             $table->boolean("visible")->default(true);
-            $table->string("deleted_at")->nullable();
         });
     }
 

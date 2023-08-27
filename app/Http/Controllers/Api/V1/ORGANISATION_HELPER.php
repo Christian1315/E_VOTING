@@ -77,7 +77,7 @@ class ORGANISATION_HELPER extends BASE_HELPER
     static function updateOrganisations($request, $id)
     {
         $formData = $request->all();
-        $organisation = Organisation::where(['id' => $id, 'owner' => request()->user()->id])->get();
+        $organisation = Organisation::where(['id' => $id, 'owner' => request()->user()->id, "visible" => 1])->get();
         if ($organisation->count() == 0) {
             return self::sendError("Cette organisation n'existe pas!", 404);
         }
@@ -114,7 +114,7 @@ class ORGANISATION_HELPER extends BASE_HELPER
 
     static function organisationDelete($id)
     {
-        $organisation = Organisation::where(['id' => $id, 'owner' => request()->user()->id])->get();
+        $organisation = Organisation::where(['id' => $id, 'owner' => request()->user()->id, "visible" => 1])->get();
         if (count($organisation) == 0) {
             return self::sendError("Cette Organisation n'existe pas!", 404);
         };

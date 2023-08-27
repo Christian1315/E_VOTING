@@ -112,7 +112,7 @@ class CANDIDAT_HELPER extends BASE_HELPER
     static function updateCandidats($request, $id)
     {
         $formData = $request->all();
-        $candidat = Candidat::where(['id' => $id, 'owner' => request()->user()->id])->get();
+        $candidat = Candidat::where(['id' => $id, 'owner' => request()->user()->id,"visible"=>1])->get();
         if ($candidat->count() == 0) {
             return self::sendError("Ce Candidat n'existe pas!", 404);
         }

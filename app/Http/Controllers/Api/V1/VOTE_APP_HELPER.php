@@ -68,9 +68,9 @@ class VOTE_APP_HELPER extends BASE_HELPER
         // return $formData;
         $elector_vote = ElectorVote::where(["secret_code" => $formData["secret_code"]])->get();
 
-        $elector = Elector::where("identifiant", $formData["id"])->get();
+        $elector = Elector::where(["identifiant" => $formData["id"], "visible" => 1])->get();
         if ($elector->count() == 0) { #On vérifie s'il est un Electeur d'abord
-            return self::sendError("Echec de connexion! Vous n'etes pas un electeur", 404);
+            return self::sendError("Echec de connexion! Ce compte n'est pas celui d'un electeur", 404);
         }
 
         #on verifie s'il a été vraiment affecté.e à ce vote
@@ -81,8 +81,6 @@ class VOTE_APP_HELPER extends BASE_HELPER
         if ($elector_vote[0]->voted) {
             return self::sendError("Merci d'avoir déjà voter pour ce vote!", 404);
         }
-
-
 
 
         $vote_id = $elector_vote[0]->vote_id; #Recuperation de l'ID du vote

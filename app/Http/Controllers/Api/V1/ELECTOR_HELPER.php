@@ -129,7 +129,7 @@ class ELECTOR_HELPER extends BASE_HELPER
     static function updateElectors($request, $id)
     {
         $formData = $request->all();
-        $elector = Elector::where(['id' => $id, 'owner' => request()->user()->id])->get();
+        $elector = Elector::where(['id' => $id, 'owner' => request()->user()->id, "visible" => 1])->get();
         if ($elector->count() == 0) {
             return self::sendError("Ce Elector n'existe pas!", 404);
         }

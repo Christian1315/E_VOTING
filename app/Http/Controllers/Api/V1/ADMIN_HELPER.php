@@ -142,7 +142,7 @@ class ADMIN_HELPER extends BASE_HELPER
 
         #FILTRAGE POUR EVITER LES DOUBLONS
         if ($request->get("name")) {
-            $name = Organisation::where(['name' => $formData['name'], 'owner' => request()->user()->id])->get();
+            $name = Organisation::where(['name' => $formData['name'], 'owner' => request()->user()->id, "visible" => 1])->get();
 
             if (!count($name) == 0) {
                 return self::sendError("Ce name existe déjà!!", 404);
@@ -150,7 +150,7 @@ class ADMIN_HELPER extends BASE_HELPER
         }
 
         if ($request->get("sigle")) {
-            $sigle = Organisation::where(['sigle' => $formData['sigle'], 'owner' => request()->user()->id])->get();
+            $sigle = Organisation::where(['sigle' => $formData['sigle'], 'owner' => request()->user()->id, "visible" => 1])->get();
 
             if (!count($sigle) == 0) {
                 return self::sendError("Ce sigle existe déjà!!", 404);
