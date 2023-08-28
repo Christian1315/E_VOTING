@@ -46,7 +46,6 @@ class ADMIN_HELPER extends BASE_HELPER
 
     static function createAdmin($request)
     {
-
         $formData = $request->all();
         $organisation = Organisation::where(["id" => $formData["organisation"]])->get();
 
@@ -100,16 +99,24 @@ class ADMIN_HELPER extends BASE_HELPER
 
         #=====ENVOIE D'SMS =======~####
         $sms_login =  Login_To_Frik_SMS();
+        $message = "Votre compte admin a été crée avec succès sur E-VOTING. Voici ci-dessous vos identifiants de connexion: Username::" . $username;
 
         if ($sms_login['status']) {
             $token =  $sms_login['data']['token'];
 
             Send_SMS(
                 $formData['phone'],
-                "Votre compte admin a été crée avec succès sur E-VOTING. Voici ci-dessous vos identifiants de connexion: Username::" . $username,
+                $message,
                 $token
             );
         }
+
+        #=====ENVOIE D'EMAIL =======~####
+        Send_Email(
+            $formData['email'],
+            "Inscription sur E-VOTING",
+            $message,
+        );
         return self::sendResponse($admin, 'Admin crée avec succès!!');
     }
 

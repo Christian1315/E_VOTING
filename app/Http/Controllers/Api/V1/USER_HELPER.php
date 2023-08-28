@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Right;
 use App\Models\User;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;

@@ -1,10 +1,12 @@
 <?php
 
+use App\Mail\SendEmail;
 use App\Models\CandidatVote;
 use App\Models\Organisation;
 use App\Models\Right;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 
 function userCount()
 {
@@ -66,6 +68,15 @@ function Send_SMS($phone, $message, $token)
     ]);
 
     $response->getBody()->rewind();
+}
+
+function Send_Email($email, $subject, $message)
+{
+    $data = [
+        "subject" => $subject,
+        "message" => $message,
+    ];
+    Mail::to($email)->send(new SendEmail($data));
 }
 
 

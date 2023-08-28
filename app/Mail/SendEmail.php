@@ -13,7 +13,7 @@ use Illuminate\Mail\Mailables\Envelope;
 class SendEmail extends Mailable
 {
     use Queueable, SerializesModels;
-    
+
     public $details;
 
     /**
@@ -22,6 +22,7 @@ class SendEmail extends Mailable
     public function __construct($details)
     {
         $this->details = $details;
+        return $this->details;
     }
 
     /**
@@ -30,14 +31,13 @@ class SendEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Notification',
-            from: new Address('christiangogo13154@gmail.com', 'AGBANDE'),
+            subject: $this->details["subject"],
+            from: new Address('no-reply@evoting.digital', 'E-VOTING'),
             replyTo: [
-                new Address('christiangogo13154@gmail.com', 'AGBANDE'),
+                new Address('no-reply@evoting.digital', 'E-VOTING'),
             ],
         );
     }
-  
 
     /**
      * Get the message content definition.

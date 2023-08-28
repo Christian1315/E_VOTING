@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Models\Elector;
 use App\Models\Organisation;
 use App\Models\User;
-use Illuminate\Validation\Rule;
+use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -27,10 +27,8 @@ class ELECTOR_HELPER extends BASE_HELPER
         return [
             'name.required' => 'Le name est réquis!',
             'email.required' => 'L\'email est réquis!',
-            'email.unique' => 'L\'email existe déjà!',
             'email.email' => 'Ce Champ est un mail!',
             'phone.required' => 'Le phone est réquis!',
-            'phone.unique' => 'Le phone est existe déjà!',
         ];
     }
 
@@ -67,11 +65,11 @@ class ELECTOR_HELPER extends BASE_HELPER
         // return $user;
         $username =  Get_Username($user, $type); ##Get_Username est un helper qui genère le **username** 
 
-        ##VERIFIONS SI CE ELECTEUR EXISTAIT DEJA
-        $elector = Elector::where(["phone" => $formData['phone'], "email" => $formData['email'], "owner" => request()->user()->id])->get();
-        if (count($elector) != 0) {
-            return self::sendError("Un compte existe déjà au nom de ce phone et ce mail!", 404);
-        }
+        // ##VERIFIONS SI CE ELECTEUR EXISTAIT DEJA
+        // $elector = Elector::where(["phone" => $formData['phone'], "email" => $formData['email'], "owner" => request()->user()->id])->get();
+        // if (count($elector) != 0) {
+        //     return self::sendError("Un compte existe déjà au nom de ce phone et ce mail!", 404);
+        // }
 
         $userData = [
             "name" => $formData['name'],
@@ -97,17 +95,24 @@ class ELECTOR_HELPER extends BASE_HELPER
 
         #=====ENVOIE D'SMS A L'ELECTEUR APRES CREATION DE SON COMPTE USER =======~####
         $sms_login =  Login_To_Frik_SMS();
+        $message = "Vous avez été ajouté.e comme un electeur à l'organisation <<" . $organisation_name . ">> sur E-VOTING. Voici ci-dessous vos identifiants de connexion: Username:: " . $username;
 
         if ($sms_login['status']) {
             $token =  $sms_login['data']['token'];
 
             Send_SMS(
                 $formData['phone'],
-                "Vous avez été ajouté.e comme un electeur à l'organisation " . $organisation_name . " sur E-VOTING. Voici ci-dessous vos identifiants de connexion: Username::" . $username,
+                $message,
                 $token
             );
         }
 
+        #=====ENVOIE D'EMAIL =======~####
+        Send_Email(
+            $formData['email'],
+            "Vous êtes electeur sur E-VOTING",
+            $message,
+        );
         return self::sendResponse($elector, 'Electeur crée avec succès!!');
     }
 

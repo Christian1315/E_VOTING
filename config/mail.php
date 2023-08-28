@@ -52,16 +52,10 @@ return [
 
         'mailgun' => [
             'transport' => 'mailgun',
-            // 'client' => [
-            //     'timeout' => 5,
-            // ],
         ],
 
         'postmark' => [
             'transport' => 'postmark',
-            // 'client' => [
-            //     'timeout' => 5,
-            // ],
         ],
 
         'sendmail' => [
@@ -85,29 +79,6 @@ return [
                 'log',
             ],
         ],
-
-        'mailjet' => [
-            'key' => env('MAILJET_APIKEY'),
-            'secret' => env('MAILJET_APISECRET'),
-            'transactional' => [
-                'call' => true,
-                'options' => [
-                    'url' => 'api.mailjet.com',
-                    'version' => 'v3.1',
-                    'call' => true,
-                    'secured' => true
-                ]
-            ],
-            'common' => [
-                'call' => true,
-                'options' => [
-                    'url' => 'api.mailjet.com',
-                    'version' => 'v3',
-                    'call' => true,
-                    'secured' => true
-                ]
-            ]
-        ]
     ],
 
     /*
@@ -121,10 +92,10 @@ return [
     |
     */
 
-    'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', 'Example'),
-    ],
+    // 'from' => [
+    //     'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
+    //     'name' => env('MAIL_FROM_NAME', 'Example'),
+    // ],
 
     /*
     |--------------------------------------------------------------------------
