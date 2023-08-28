@@ -16,7 +16,7 @@ class ADMIN_HELPER extends BASE_HELPER
         return [
             'name' => ['required', Rule::unique('users')],
             'email' => ['required', 'email', Rule::unique('users')],
-            'phone' => ['required', Rule::unique('users')],
+            'phone' => ['required'],
             'organisation' => ['required', "integer"],
         ];
     }
@@ -29,7 +29,6 @@ class ADMIN_HELPER extends BASE_HELPER
             'email.unique' => 'L\'email existe déjà!',
             'email.email' => 'Ce Champ est un mail!',
             'phone.required' => 'Le phone est réquis!',
-            'phone.unique' => 'Le phone est existe déjà!',
             'organisation.required' => 'L\'organisation est réquise!',
             'organisation.integer' => 'Ce champ est un entier!',
         ];
@@ -67,10 +66,7 @@ class ADMIN_HELPER extends BASE_HELPER
         if (count($user) != 0) {
             return self::sendError("Un compte existe déjà au nom de ce identifiant!", 404);
         }
-        $user = User::where("phone", $formData['phone'])->get();
-        if (count($user) != 0) {
-            return self::sendError("Un compte existe déjà au nom de ce identifiant!", 404);
-        }
+
         $user = User::where("email", $formData['email'])->get();
         if (count($user) != 0) {
             return self::sendError("Un compte existe déjà au nom de ce identifiant!!", 404);

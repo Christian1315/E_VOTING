@@ -47,9 +47,6 @@ return new class extends Migration
             $table->boolean('is_super_admin')->default(false);
             $table->integer('organisation')->nullable();
 
-
-
-
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
