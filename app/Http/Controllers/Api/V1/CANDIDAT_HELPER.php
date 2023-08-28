@@ -96,12 +96,25 @@ class CANDIDAT_HELPER extends BASE_HELPER
 
     static function getCandidats()
     {
-        $candidat =  Candidat::with(['owner', 'belong_to_organisation', "votes"])->where(["owner" => request()->user()->id, "visible" => 1])->orderBy("id", "desc")->get();
+        $user = request()->user();
+        if ($user->is_super_admin) { ###S'IL S'AGIT D'UN SUPER ADMIN
+            ###il peut tout recuperer
+            $candidat =  Candidat::with(['owner', 'belong_to_organisation', "votes"])->orderBy("id", "desc")->get();
+        } else {
+            $candidat =  Candidat::with(['owner', 'belong_to_organisation', "votes"])->where(["owner" => request()->user()->id, "visible" => 1])->orderBy("id", "desc")->get();
+        }
         return self::sendResponse($candidat, 'Tout les candidats récupérés avec succès!!');
     }
 
     static function retrieveCandidats($id)
     {
+        $user = request()->user();
+        if ($user->is_super_admin) { ###S'IL S'AGIT D'UN SUPER ADMIN
+            ###il peut tout recuperer
+            $candidat =  Candidat::with(['owner', 'belong_to_organisation', "votes"])->orderBy("id", "desc")->get();
+        } else {
+            $candidat =  Candidat::with(['owner', 'belong_to_organisation', "votes"])->where(["owner" => request()->user()->id, "visible" => 1])->orderBy("id", "desc")->get();
+        }
         $candidat = Candidat::with(['owner', 'belong_to_organisation', "votes"])->where(["owner" => request()->user()->id, "id" => $id, "visible" => 1])->get();
         if ($candidat->count() == 0) {
             return self::sendError("Ce Candidat n'existe pas!", 404);
@@ -112,7 +125,7 @@ class CANDIDAT_HELPER extends BASE_HELPER
     static function updateCandidats($request, $id)
     {
         $formData = $request->all();
-        $candidat = Candidat::where(['id' => $id, 'owner' => request()->user()->id,"visible"=>1])->get();
+        $candidat = Candidat::where(['id' => $id, 'owner' => request()->user()->id, "visible" => 1])->get();
         if ($candidat->count() == 0) {
             return self::sendError("Ce Candidat n'existe pas!", 404);
         }

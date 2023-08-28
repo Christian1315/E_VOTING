@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('username');
             $table->string('email')->unique();
-            $table->string('phone')->unique();
+            $table->string('phone');
             $table->string('last_login')->nullable();
             $table->integer('organisation');
             $table->foreignId('as_user')
@@ -29,6 +29,9 @@ return new class extends Migration
                 ->constrained("users", "id")
                 ->onUpdate("CASCADE")
                 ->onDelete("CASCADE");
+
+            $table->boolean("visible")->default(true);
+            $table->string("deleted_at")->nullable();
             $table->timestamps();
         });
     }

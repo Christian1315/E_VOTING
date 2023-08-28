@@ -115,13 +115,25 @@ class ADMIN_HELPER extends BASE_HELPER
 
     static function getAdmins()
     {
-        $admins =  Admin::with(['parent', 'owner', 'organisation'])->where(["owner" => request()->user()->id, "visible" => 1])->orderBy("id", "desc")->get();
+        $user = request()->user();
+        if ($user->is_super_admin) { ###S'IL S'AGIT D'UN SUPER ADMIN
+            ###il peut tout recuperer
+            $admins =  Admin::with(['parent', 'owner', 'organisation'])->orderBy("id", "desc")->get();
+        } else {
+            $admins =  Admin::with(['parent', 'owner', 'organisation'])->where(["owner" => request()->user()->id, "visible" => 1])->orderBy("id", "desc")->get();
+        }
         return self::sendResponse($admins, 'Tout les admins récupérés avec succès!!');
     }
 
     static function retrieveAdmins($id)
     {
-        $admin = Admin::with(['parent', 'owner', 'organisation'])->where(["owner" => request()->user()->id, "id" => $id, "visible" => 1])->get();
+        $user = request()->user();
+        if ($user->is_super_admin) { ###S'IL S'AGIT D'UN SUPER ADMIN
+            ###il peut tout recuperer
+            $admin =  Admin::with(['parent', 'owner', 'organisation'])->where(["id" => $id])->get();
+        } else {
+            $admin = Admin::with(['parent', 'owner', 'organisation'])->where(["owner" => request()->user()->id, "id" => $id, "visible" => 1])->get();
+        }
         if ($admin->count() == 0) {
             return self::sendError("Cet admin n'existe pas!", 404);
         }

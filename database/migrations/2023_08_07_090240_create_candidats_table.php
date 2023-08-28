@@ -26,6 +26,8 @@ return new class extends Migration
                 ->constrained("organisations", "id")
                 ->onUpdate("CASCADE")
                 ->onDelete("CASCADE");
+            $table->boolean("visible")->default(true);
+            $table->string("deleted_at")->nullable();
             $table->timestamps();
         });
     }

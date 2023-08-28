@@ -156,13 +156,26 @@ class VOTE_HELPER extends BASE_HELPER
 
     static function getVotes()
     {
-        $vote =  Vote::with(["status", 'owner', "candidats", "electors"])->where(["owner" => request()->user()->id, "visible" => 1])->orderBy("id", "desc")->get();
+        $user = request()->user();
+        if ($user->is_super_admin) { ### S'IL S'AGIT D'UN SUPER ADMIN
+            ###il peut tout recuperer
+            $vote =  Vote::with(["status", 'owner', "candidats", "electors"])->orderBy("id", "desc")->get();
+        } else {
+            $vote =  Vote::with(["status", 'owner', "candidats", "electors"])->where(["owner" => request()->user()->id, "visible" => 1])->orderBy("id", "desc")->get();
+        }
         return self::sendResponse($vote, 'Tout les votes récupérés avec succès!!');
     }
 
     static function retrieveVotes($id)
     {
-        $vote = Vote::with(["status", 'owner', "candidats", "electors"])->where(["owner" => request()->user()->id, "id" => $id, "visible" => 1])->get();
+        $user = request()->user();
+        if ($user->is_super_admin) { ### S'IL S'AGIT D'UN SUPER ADMIN
+            ###il peut tout recuperer
+            $vote =  Vote::with(["status", 'owner', "candidats", "electors"])->where(["id" => $id])->get();
+        } else {
+            $vote = Vote::with(["status", 'owner', "candidats", "electors"])->where(["owner" => request()->user()->id, "id" => $id, "visible" => 1])->get();
+        }
+
         if ($vote->count() == 0) {
             return self::sendError("Ce vote n'existe pas!", 404);
         }
@@ -247,7 +260,7 @@ class VOTE_HELPER extends BASE_HELPER
         };
         $vote = $vote[0];
         $vote->visible = 0;
-        $vote->delete_at = now();
+        $vote->deleted_at = now();
         $vote->save();
         return self::sendResponse($vote, 'Ce Vote a été supprimé avec succès!');
     }

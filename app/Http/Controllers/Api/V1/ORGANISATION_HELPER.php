@@ -61,13 +61,25 @@ class ORGANISATION_HELPER extends BASE_HELPER
 
     static function getOrganisations()
     {
-        $organisations =  Organisation::where(["visible" => 1])->orderBy("id", "desc")->get();
+        $user = request()->user();
+        if ($user->is_super_admin) { ### S'IL S'AGIT D'UN SUPER ADMIN
+            ###il peut tout recuperer
+            $organisations =  Organisation::orderBy("id", "desc")->get();
+        } else {
+            $organisations =  Organisation::where(["visible" => 1])->orderBy("id", "desc")->get();
+        }
         return self::sendResponse($organisations, 'Toutes les organisations récupérés avec succès!!');
     }
 
     static function retrieveOrganisations($id)
     {
-        $organisation = Organisation::where(['id' => $id, "visible" => 1])->get();
+        $user = request()->user();
+        if ($user->is_super_admin) { ### S'IL S'AGIT D'UN SUPER ADMIN
+            ###il peut tout recuperer
+            $organisation =  Organisation::where(['id' => $id])->get();
+        } else {
+            $organisation = Organisation::where(['id' => $id, "visible" => 1])->get();
+        }
         if ($organisation->count() == 0) {
             return self::sendError("Cette organisation n'existe pas!", 404);
         }

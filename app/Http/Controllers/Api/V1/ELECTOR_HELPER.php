@@ -113,13 +113,26 @@ class ELECTOR_HELPER extends BASE_HELPER
 
     static function getElectors()
     {
-        $elector =  Elector::with(['owner', "votes"])->where(["owner" => request()->user()->id, "visible" => 1])->orderBy("id", "desc")->get();
+        $user = request()->user();
+        if ($user->is_super_admin) { ###S'IL S'AGIT D'UN SUPER ADMIN
+            ###il peut tout recuperer
+            $elector =  Elector::with(['owner', "votes"])->orderBy("id", "desc")->get();
+        } else {
+            $elector =  Elector::with(['owner', "votes"])->where(["owner" => request()->user()->id, "visible" => 1])->orderBy("id", "desc")->get();
+        }
         return self::sendResponse($elector, 'Tout les electeurs récupérés avec succès!!');
     }
 
     static function retrieveElectors($id)
     {
-        $elector = Elector::with(['owner', "votes"])->where(["owner" => request()->user()->id, "id" => $id, "visible" => 1])->get();
+        $user = request()->user();
+        if ($user->is_super_admin) { ### S'IL S'AGIT D'UN SUPER ADMIN
+            ###il peut tout recuperer
+            $elector =  Elector::with(['owner', "votes"])->where(["id" => $id])->orderBy("id", "desc")->get();
+        } else {
+            $elector =  Elector::with(['owner', "votes"])->where(["owner" => request()->user()->id, "visible" => 1])->orderBy("id", "desc")->get();
+        }
+
         if ($elector->count() == 0) {
             return self::sendError("Ce elector n'existe pas!", 404);
         }
