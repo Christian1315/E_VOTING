@@ -103,8 +103,6 @@ class USER_HELPER extends BASE_HELPER
         return $validator;
     }
 
-
-
     ##======== ATTACH VALIDATION =======##
     static function ATTACH_rules(): array
     {
@@ -266,16 +264,22 @@ class USER_HELPER extends BASE_HELPER
 
         #===== ENVOIE D'SMS AUX ELECTEURS DU VOTE =======~####
 
-        $sms_login =  Login_To_Frik_SMS();
+        Send_Email(
+            $user->email,
+            "Demande de réinitialisation de password",
+            "Demande de réinitialisation éffectuée avec succès! sur E-VOTING! Voici vos informations de réinitialisation de password ::" . $pass_code,
+        );
 
-        if ($sms_login['status']) {
-            $token =  $sms_login['data']['token'];
-            Send_SMS(
-                $user->phone,
-                "Demande de réinitialisation éffectuée avec succès! sur E-VOTING! Voici vos informations de réinitialisation de password ::" . $pass_code,
-                $token
-            );
-        }
+        // $sms_login =  Login_To_Frik_SMS();
+
+        // if ($sms_login['status']) {
+        //     $token =  $sms_login['data']['token'];
+        //     Send_SMS(
+        //         $user->phone,
+        //         "Demande de réinitialisation éffectuée avec succès! sur E-VOTING! Voici vos informations de réinitialisation de password ::" . $pass_code,
+        //         $token
+        //     );
+        // }
 
         return self::sendResponse($user, "Demande de réinitialisation éffectuée avec succès! Veuillez vous connecter avec le code qui vous a été envoyé par phone ");
     }
