@@ -57,7 +57,7 @@ class RightController extends RIGHTS_HELPER
         #RECUPERATION DU RIGHT
         return $this->_retrieveRight($id);
     }
-    
+
     function DeleteRight(Request $request, $id)
     {
         #VERIFICATION DE LA METHOD
@@ -69,5 +69,14 @@ class RightController extends RIGHTS_HELPER
         return $this->rightDelete($id);
     }
 
-    
+    function _UpdateRight(Request $request, $id)
+    {
+        #VERIFICATION DE LA METHOD
+        if ($this->methodValidation($request->method(), "POST") == False) {
+            #RENVOIE D'ERREURE VIA **sendError** DE LA CLASS USER_HELPER
+            return $this->sendError("La méthode " . $request->method() . " n'est pas supportée pour cette requete!!", 404);
+        };
+
+        return $this->updateRight($request, $id);
+    }
 }

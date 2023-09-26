@@ -38,4 +38,9 @@ class Vote extends Model
     {
         return $this->belongsTo(VoteStatus::class, "status");
     }
+
+    function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class, "organisation");
+    }
 }

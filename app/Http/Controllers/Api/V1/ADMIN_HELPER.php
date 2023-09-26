@@ -68,7 +68,7 @@ class ADMIN_HELPER extends BASE_HELPER
 
         $user = User::where("email", $formData['email'])->get();
         if (count($user) != 0) {
-            return self::sendError("Un compte existe déjà au nom de ce identifiant!!", 404);
+            return self::sendError("Un compte existe déjà au nom de ce email!!", 404);
         }
 
         $userData = [
@@ -151,26 +151,10 @@ class ADMIN_HELPER extends BASE_HELPER
     {
         $formData = $request->all();
         $admin = Admin::where(['id' => $id, 'owner' => request()->user()->id, "visible" => 1])->get();
-        if ($admin->count() == 0) {
+        if (!$admin) {
             return self::sendError("Cet Admin n'existe pas!", 404);
         }
 
-        #FILTRAGE POUR EVITER LES DOUBLONS
-        if ($request->get("name")) {
-            $name = Organisation::where(['name' => $formData['name'], 'owner' => request()->user()->id, "visible" => 1])->get();
-
-            if (!count($name) == 0) {
-                return self::sendError("Ce name existe déjà!!", 404);
-            }
-        }
-
-        if ($request->get("sigle")) {
-            $sigle = Organisation::where(['sigle' => $formData['sigle'], 'owner' => request()->user()->id, "visible" => 1])->get();
-
-            if (!count($sigle) == 0) {
-                return self::sendError("Ce sigle existe déjà!!", 404);
-            }
-        }
 
         ##GESTION DES FICHIERS
         if ($request->file("img")) {
@@ -180,6 +164,7 @@ class ADMIN_HELPER extends BASE_HELPER
             //REFORMATION DU $formData AVANT SON ENREGISTREMENT DANS LA TABLE 
             $formData["img"] = asset("pieces/" . $img_name);
         }
+
         $admin = $admin[0];
         $admin->update($formData);
         return self::sendResponse($admin, "Admin récupéré(e) avec succès:!!");

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\Profil;
 use App\Models\Rang;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -62,11 +61,10 @@ class RANG_HELPER extends BASE_HELPER
 
     static function _updateRang($formData, $id)
     {
-        $rang = Rang::where('id', $id)->get();
-        if (count($rang) == 0) {
+        $rang = Rang::find($id);
+        if (!$rang) {
             return self::sendError("Ce rang n'existe pas!", 404);
         };
-        $rang = Rang::find($id);
         $rang->update($formData);
         $rang['users'] = $rang->users;
         return self::sendResponse($rang, 'Ce rang a été modifié avec succès!');
@@ -74,11 +72,10 @@ class RANG_HELPER extends BASE_HELPER
 
     static function rangDelete($id)
     {
-        $rang = Rang::where('id', $id)->get();
-        if (count($rang) == 0) {
+        $rang = Rang::find($id);
+        if (!$rang) {
             return self::sendError("Ce rang n'existe pas!", 404);
         };
-        $rang = Rang::find($id);
         $rang->delete();
         $rang['users'] = $rang->users;
         return self::sendResponse($rang, 'Ce rang a été supprimé avec succès!');

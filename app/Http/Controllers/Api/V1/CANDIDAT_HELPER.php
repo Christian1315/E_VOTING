@@ -130,15 +130,6 @@ class CANDIDAT_HELPER extends BASE_HELPER
             return self::sendError("Ce Candidat n'existe pas!", 404);
         }
 
-        #FILTRAGE POUR EVITER LES DOUBLONS
-        if ($request->get("name")) {
-            $name = Candidat::where(['name' => $formData['name'], 'owner' => request()->user()->id])->get();
-
-            if (!count($name) == 0) {
-                return self::sendError("Ce name existe déjà!!", 404);
-            }
-        }
-
         if ($request->get("organisation")) {
             $user =  request()->user();
 
@@ -164,8 +155,6 @@ class CANDIDAT_HELPER extends BASE_HELPER
                 }
             }
         }
-
-        // $formData["organisation"];
 
         ##GESTION DES FICHIERS
         if ($request->file("img")) {

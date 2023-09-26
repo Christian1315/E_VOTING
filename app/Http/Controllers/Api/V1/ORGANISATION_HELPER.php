@@ -32,7 +32,6 @@ class ORGANISATION_HELPER extends BASE_HELPER
 
     static function Organisation_Validator($formDatas)
     {
-        #
         $rules = self::organisation_rules();
         $messages = self::organisation_messages();
 
@@ -92,23 +91,6 @@ class ORGANISATION_HELPER extends BASE_HELPER
         $organisation = Organisation::where(['id' => $id, 'owner' => request()->user()->id, "visible" => 1])->get();
         if ($organisation->count() == 0) {
             return self::sendError("Cette organisation n'existe pas!", 404);
-        }
-
-        #FILTRAGE POUR EVITER LES DOUBLONS
-        if ($request->get("name")) {
-            $name = Organisation::where(['name' => $formData['name'], 'owner' => request()->user()->id])->get();
-
-            if (!count($name) == 0) {
-                return self::sendError("Ce name existe déjà!!", 404);
-            }
-        }
-
-        if ($request->get("sigle")) {
-            $sigle = Organisation::where(['sigle' => $formData['sigle'], 'owner' => request()->user()->id])->get();
-
-            if (!count($sigle) == 0) {
-                return self::sendError("Ce sigle existe déjà!!", 404);
-            }
         }
 
         ##GESTION DES FICHIERS

@@ -96,4 +96,38 @@ class RIGHTS_HELPER extends BASE_HELPER
         // $right['actions'] = $right->actions;
         return self::sendResponse($right, 'Ce droit a été supprimée avec succès!');
     }
+
+    static function updateRight($request, $id)
+    {
+        $formData = $request->all();
+        $right = Right::find($id);
+        if (!$right) {
+            return self::sendError("Ce droit n'existe pas!", 404);
+        }
+
+        if ($request->get("action")) {
+            $action = Action::find($request->get("action"));
+            if (!$action) {
+                return self::sendError("Cette action n'existe pas!", 505);
+            }
+        }
+
+        if ($request->get("rang")) {
+            $rang = Rang::find($request->get("rang"));
+            if (!$rang) {
+                return self::sendError("Ce rang n'existe pas!", 505);
+            }
+        }
+
+        if ($request->get("profil")) {
+            $profil = Profil::find($request->get("profil"));
+            if (!$profil) {
+                return self::sendError("Ce profils n'existe pas!", 505);
+            }
+        }
+
+        $right->update($formData);
+
+        return self::sendResponse($right, "Droit modifié avec succès!");
+    }
 }

@@ -62,14 +62,7 @@ class ELECTOR_HELPER extends BASE_HELPER
             $organisation_name = $organisation->name;
         }
 
-        // return $user;
         $username =  Get_Username($user, $type); ##Get_Username est un helper qui genère le **username** 
-
-        // ##VERIFIONS SI CE ELECTEUR EXISTAIT DEJA
-        // $elector = Elector::where(["phone" => $formData['phone'], "email" => $formData['email'], "owner" => request()->user()->id])->get();
-        // if (count($elector) != 0) {
-        //     return self::sendError("Un compte existe déjà au nom de ce phone et ce mail!", 404);
-        // }
 
         $userData = [
             "name" => $formData['name'],
@@ -80,7 +73,6 @@ class ELECTOR_HELPER extends BASE_HELPER
             "organisation" => $organisationId,
         ];
 
-        // return $formData;
         $formData["username"] = $username;
 
         $user = User::create($userData);
@@ -152,15 +144,6 @@ class ELECTOR_HELPER extends BASE_HELPER
             return self::sendError("Ce Elector n'existe pas!", 404);
         }
 
-        #FILTRAGE POUR EVITER LES DOUBLONS
-        if ($request->get("name")) {
-            $name = Elector::where(['name' => $formData['name'], 'owner' => request()->user()->id])->get();
-
-            if (!count($name) == 0) {
-                return self::sendError("Ce name existe déjà!!", 404);
-            }
-        }
-
         $elector = $elector[0];
         $elector->update($formData);
         return self::sendResponse($elector, "Electeur modifié(e) avec succès:!!");
@@ -178,4 +161,6 @@ class ELECTOR_HELPER extends BASE_HELPER
         $elector->save();
         return self::sendResponse($elector, 'Ce electeur a été supprimé avec succès!');
     }
+
+    
 }

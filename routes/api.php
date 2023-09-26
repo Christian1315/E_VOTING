@@ -34,6 +34,7 @@ Route::prefix('v1')->group(function () {
         Route::middleware(['auth:api'])->get('logout', 'Logout');
         Route::any('users', 'Users');
         Route::any('users/{id}', 'RetrieveUser');
+        Route::any('user/{id}/update', 'UpdateUser');
         Route::any('{id}/password/update', 'UpdatePassword');
         Route::any('password/demand_reinitialize', 'DemandReinitializePassword');
         Route::any('password/reinitialize', 'ReinitializePassword');
@@ -59,8 +60,8 @@ Route::prefix('v1')->group(function () {
         Route::controller(AdminController::class)->group(function () {
             Route::any('add', 'AddAdmin');
             Route::any('all', 'getAdmins');
-            Route::any('{id}/retrieve', 'retrieveAdmins');
-            Route::any('{id}/update', 'updateAdmins');
+            Route::any('{id}/retrieve', 'retrieveAdmin');
+            Route::any('{id}/update', 'updateAdmin');
             Route::any('{id}/delete', 'adminDelete');
         });
     });
@@ -96,7 +97,10 @@ Route::prefix('v1')->group(function () {
             Route::any('{id}/update', 'UpdateVote');
             Route::any('{id}/delete', 'DeleteVote');
             Route::any('/affect-to-elector', '_AffectToElector');
+            Route::any('/retrieve-from-elector', '_RetrieveElectorFromVote');
+            Route::any('/retrieve-from-candidat', '_RetrieveCandidatFromVote');
             Route::any('{id}/initiate-a-vote', '_InitiateVote');
+            Route::any('{id}/resend-a-vote', '_ResendVote');
         });
     });
 
@@ -123,6 +127,7 @@ Route::prefix('v1')->group(function () {
             Route::any('add', 'CreateRight'); #AJOUT D'UN DROIT'
             Route::any('all', 'Rights'); #GET ALL RIGHTS
             Route::any('{id}/retrieve', 'RetrieveRight'); #RECUPERATION D'UN DROIT
+            Route::any('{id}/update', '_UpdateRight'); #UPDATE D'UN DROIT
             Route::any('{id}/delete', 'DeleteRight'); #SUPPRESSION D'UN DROIT
         });
     });

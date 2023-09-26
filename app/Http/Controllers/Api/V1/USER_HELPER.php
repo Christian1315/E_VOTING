@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Models\Organisation;
 use App\Models\Right;
 use App\Models\User;
 use Illuminate\Validation\Rule;
@@ -239,6 +240,44 @@ class USER_HELPER extends BASE_HELPER
             return self::sendResponse($user, 'Mot de passe modifié avec succès!');
         }
         return self::sendError("Votre mot de passe est incorrect", 505);
+    }
+
+    static function _updateUser($request)
+    {
+        $user = request()->user();
+        $user = User::find($user->id);
+        if (!$user) {
+            return self::sendError("Ce compte ne vous appartient pas!", 404);
+        };
+
+        if ($request->get("name")) {
+            $user->name = $request->get("name");
+        }
+        if ($request->get("username")) {
+            $user->username = $request->get("username");
+        }
+        if ($request->get("phone")) {
+            $user->phone = $request->get("phone");
+        }
+        if ($request->get("email")) {
+            $user->email = $request->get("email");
+        }
+        if ($request->get("rang_id")) {
+            $user->rang_id = $request->get("rang_id");
+        }
+        if ($request->get("profil_id")) {
+            $user->profil_id = $request->get("profil_id");
+        }
+        if ($request->get("organisation")) {
+            $organisation = Organisation::where(["owner" => $user->id])->find($request->get("organisation"));
+            if (!$organisation) {
+                return self::sendError("Cette Organisation n'existe pas!", 404);
+            }
+            $user->organisation = $request->get("organisation");
+        }
+
+        $user->save();
+        return self::sendResponse($user, "Utilisateur modifié avec succès!!");
     }
 
     static function _demandReinitializePassword($request)

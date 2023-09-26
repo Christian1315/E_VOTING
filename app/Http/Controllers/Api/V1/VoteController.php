@@ -101,6 +101,44 @@ class VoteController extends VOTE_HELPER
         return $this->AffectToElector($request);
     }
 
+    function _RetrieveElectorFromVote(Request $request)
+    {
+        #VERIFICATION DE LA METHOD
+        if ($this->methodValidation($request->method(), "POST") == False) {
+            #RENVOIE D'ERREURE VIA **sendError** DE LA CLASS Vote_HELPER
+            return $this->sendError("La méthode " . $request->method() . " n'est pas supportée pour cette requete!!", 404);
+        };
+
+        #VALIDATION DES DATAs DEPUIS LA CLASS BASE_HELPER HERITEE PAR Vote_HELPER
+        $validator = $this->Vote_affect_Validator($request->all());
+
+        if ($validator->fails()) {
+            #RENVOIE D'ERREURE VIA **sendError** DE LA CLASS BASE_HELPER HERITEE PAR Vote_HELPER
+            return $this->sendError($validator->errors(), 404);
+        }
+
+        return $this->retrieveElectorFromVote($request);
+    }
+
+    function _RetrieveCandidatFromVote(Request $request)
+    {
+        #VERIFICATION DE LA METHOD
+        if ($this->methodValidation($request->method(), "POST") == False) {
+            #RENVOIE D'ERREURE VIA **sendError** DE LA CLASS Vote_HELPER
+            return $this->sendError("La méthode " . $request->method() . " n'est pas supportée pour cette requete!!", 404);
+        };
+
+        #VALIDATION DES DATAs DEPUIS LA CLASS BASE_HELPER HERITEE PAR Vote_HELPER
+        $validator = $this->Candidat_retrieve_Validator($request->all());
+
+        if ($validator->fails()) {
+            #RENVOIE D'ERREURE VIA **sendError** DE LA CLASS BASE_HELPER HERITEE PAR Vote_HELPER
+            return $this->sendError($validator->errors(), 404);
+        }
+
+        return $this->retrieveCandidatFromVote($request);
+    }
+
     function _InitiateVote(Request $request, $id)
     {
         #VERIFICATION DE LA METHOD
@@ -109,6 +147,17 @@ class VoteController extends VOTE_HELPER
             return $this->sendError("La méthode " . $request->method() . " n'est pas supportée pour cette requete!!", 404);
         };
 
-        return $this->initiateVote($request, $id);
+        return $this->initiateVote($id);
+    }
+
+    function _ResendVote(Request $request, $id)
+    {
+        #VERIFICATION DE LA METHOD
+        if ($this->methodValidation($request->method(), "POST") == False) {
+            #RENVOIE D'ERREURE VIA **sendError** DE LA CLASS Vote_HELPER
+            return $this->sendError("La méthode " . $request->method() . " n'est pas supportée pour cette requete!!", 404);
+        };
+
+        return $this->resendVote($id);
     }
 }

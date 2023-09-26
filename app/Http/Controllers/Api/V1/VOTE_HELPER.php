@@ -40,7 +40,6 @@ class VOTE_HELPER extends BASE_HELPER
 
     static function Vote_Validator($formDatas)
     {
-        #
         $rules = self::vote_rules();
         $messages = self::vote_messages();
 
@@ -72,6 +71,29 @@ class VOTE_HELPER extends BASE_HELPER
         return $validator;
     }
 
+    ##======== RETRAIT DE CANDIDAT D'UN VOTE =======##
+    static function candidat_retrieve__rules(): array
+    {
+        return [
+            'vote_id' => ['required', "integer"],
+            'candidat_id' => ['required', "integer"],
+        ];
+    }
+
+    static function candidat_retrieve_messages(): array
+    {
+        return [];
+    }
+
+    static function Candidat_retrieve_Validator($formDatas)
+    {
+        $rules = self::candidat_retrieve__rules();
+        $messages = self::candidat_retrieve_messages();
+
+        $validator = Validator::make($formDatas, $rules, $messages);
+        return $validator;
+    }
+
     static function createVote($request)
     {
         $formData = $request->all();
@@ -96,7 +118,7 @@ class VOTE_HELPER extends BASE_HELPER
         #TRAITEMENT DU CHAMP **candidats** renseigné PAR LE USER
         $candidats_ids = $formData["candidats"];
         // return $candidats;
-        // $candidats_ids = explode(",", $candidats);
+        // $candidats_ids = explode(",", $candidats_ids);
         foreach ($candidats_ids as $id) {
             $candidat = Candidat::where(["id" => $id, "owner" => $user->id, "visible" => 1])->get();
             if ($candidat->count() == 0) {
@@ -107,7 +129,7 @@ class VOTE_HELPER extends BASE_HELPER
         #TRAITEMENT DU CHAMP **electors** S'IL EST renseigné PAR LE USER
         if ($request->get("electors")) {
             $electors_ids = $formData["electors"];
-            // $electors_ids = explode(",", $electors);
+            // $electors_ids = explode(",", $electors_ids);
             foreach ($electors_ids as $id) {
                 $elector = Elector::where(["id" => $id, "owner" => $user->id, "visible" => 1])->get();
                 if ($elector->count() == 0) {
@@ -159,9 +181,9 @@ class VOTE_HELPER extends BASE_HELPER
         $user = request()->user();
         if ($user->is_super_admin) { ### S'IL S'AGIT D'UN SUPER ADMIN
             ###il peut tout recuperer
-            $vote =  Vote::with(["status", 'owner', "candidats", "electors"])->orderBy("id", "desc")->get();
+            $vote =  Vote::with(["status", 'owner', "candidats", "electors", "organisation"])->orderBy("id", "desc")->get();
         } else {
-            $vote =  Vote::with(["status", 'owner', "candidats", "electors"])->where(["owner" => request()->user()->id, "visible" => 1])->orderBy("id", "desc")->get();
+            $vote =  Vote::with(["status", 'owner', "candidats", "electors", "organisation"])->where(["owner" => request()->user()->id, "visible" => 1])->orderBy("id", "desc")->get();
         }
         return self::sendResponse($vote, 'Tout les votes récupérés avec succès!!');
     }
@@ -171,9 +193,9 @@ class VOTE_HELPER extends BASE_HELPER
         $user = request()->user();
         if ($user->is_super_admin) { ### S'IL S'AGIT D'UN SUPER ADMIN
             ###il peut tout recuperer
-            $vote =  Vote::with(["status", 'owner', "candidats", "electors"])->where(["id" => $id])->get();
+            $vote =  Vote::with(["status", 'owner', "candidats", "electors", "organisation"])->where(["id" => $id])->get();
         } else {
-            $vote = Vote::with(["status", 'owner', "candidats", "electors"])->where(["owner" => request()->user()->id, "id" => $id, "visible" => 1])->get();
+            $vote = Vote::with(["status", 'owner', "candidats", "electors", "organisation"])->where(["owner" => request()->user()->id, "id" => $id, "visible" => 1])->get();
         }
 
         if ($vote->count() == 0) {
@@ -194,19 +216,10 @@ class VOTE_HELPER extends BASE_HELPER
 
         $vote = $vote[0];
 
-        #FILTRAGE POUR EVITER LES DOUBLONS
-        if ($request->get("name")) {
-            $name = Vote::where(['name' => $formData['name'], 'owner' => request()->user()->id, "visible" => 1])->get();
-
-            if (!count($name) == 0) {
-                return self::sendError("Ce name existe déjà!!", 404);
-            }
-        }
-
         #TRAITEMENT DU CHAMP **electors** S'IL EST renseigné PAR LE USER
         if ($request->get("electors")) {
             $electors_ids = $formData["electors"];
-            // $electors_ids = explode(",", $electors);
+            // $electors_ids = explode(",", $electors_ids);
             foreach ($electors_ids as $id) {
                 $elector = Elector::where(["id" => $id, "owner" => $user->id, "visible" => 1])->get();
                 if ($elector->count() == 0) {
@@ -228,7 +241,7 @@ class VOTE_HELPER extends BASE_HELPER
         #TRAITEMENT DU CHAMP **candidats** renseigné PAR LE USER
         if ($request->get("candidats")) {
             $candidats_ids = $formData["candidats"];
-            // $candidats_ids = explode(",", $candidats);
+            // $candidats_ids = explode(",", $candidats_ids);
             foreach ($candidats_ids as $id) {
                 $candidat = Candidat::where(["id" => $id, "owner" => $user->id, "visible" => 1])->get();
                 if ($candidat->count() == 0) {
@@ -290,7 +303,7 @@ class VOTE_HELPER extends BASE_HELPER
         $sms_login =  Login_To_Frik_SMS();
 
         // $vote_url = env("BASE_URL") . "/vote/" . $elector[0]->identifiant . "/" . $elector[0]->secret_code . "/" . $vote->id;
-        $message = "Vous avez été affecté.e au vote " . $vote->name . " en tant qu'electeur sur e-voting";
+        $message = "Vous avez été affecté.e au vote << " . $vote->name . " >> en tant qu'electeur sur e-voting";
 
         if ($sms_login['status']) {
             $token =  $sms_login['data']['token'];
@@ -311,7 +324,53 @@ class VOTE_HELPER extends BASE_HELPER
         return self::sendResponse($vote, "Affectation effectuée avec succès!");
     }
 
-    function initiateVote($request, $vote_id)
+    static function retrieveElectorFromVote($request)
+    {
+        $formData = $request->all();
+        $elector = Elector::where(['id' => $formData['elector_id'], 'owner' => request()->user()->id, "visible" => 1])->get();
+        if ($elector->count() == 0) {
+            return self::sendError("Ce electeur n'existe pas!", 404);
+        };
+
+        $vote = Vote::where(['id' => $formData['vote_id'], 'owner' => request()->user()->id, "visible" => 1])->get();
+        if ($vote->count() == 0) {
+            return self::sendError("Ce vote n'existe pas!", 404);
+        };
+
+        $vote_elector = ElectorVote::where(["elector_id" => $formData['elector_id'], "vote_id" => $formData['vote_id']])->get();
+        if ($vote_elector->count() == 0) {
+            return self::sendError("Ce electeur n'a pas été affecté à ce vote", 505);
+        }
+        $vote_elector = $vote_elector[0];
+        $vote_elector->delete();
+
+        return self::sendResponse($vote, "Retriat effectué avec succès!");
+    }
+
+    static function retrieveCandidatFromVote($request)
+    {
+        $formData = $request->all();
+        $candidat = Candidat::where(['id' => $formData['candidat_id'], 'owner' => request()->user()->id, "visible" => 1])->get();
+        if ($candidat->count() == 0) {
+            return self::sendError("Ce candidat n'existe pas!", 404);
+        };
+
+        $vote = Vote::where(['id' => $formData['vote_id'], 'owner' => request()->user()->id, "visible" => 1])->get();
+        if ($vote->count() == 0) {
+            return self::sendError("Ce vote n'existe pas!", 404);
+        };
+
+        $vote_candidat = CandidatVote::where(["candidat_id" => $formData['candidat_id'], "vote_id" => $formData['vote_id']])->get();
+        if ($vote_candidat->count() == 0) {
+            return self::sendError("Ce candidat n'a pas été affecté à ce vote", 505);
+        }
+        $vote_candidat = $vote_candidat[0];
+        $vote_candidat->delete();
+
+        return self::sendResponse($vote, "Retrait effectué avec succès!");
+    }
+
+    function initiateVote($vote_id)
     {
 
         $user = request()->user();
@@ -326,12 +385,16 @@ class VOTE_HELPER extends BASE_HELPER
         if ($vote->status == 2) {
             return self::sendError("Ce vote est déjà initié", 505);
         }
+
         $electors = $vote->electors;
+        if (count($electors) == 0) {
+            return self::sendError("Aucun electeur n'est associé à ce vote!", 404);
+        }
 
         #CHANGEMENT DE STATUS DU VOTE
         $vote->status = 2;
         $vote->save();
-        // return $electors;
+
         foreach ($electors as $elector) {
             $this_elector_vote = ElectorVote::where(["elector_id" => $elector->id, "vote_id" => $vote_id])->get();
 
@@ -341,8 +404,8 @@ class VOTE_HELPER extends BASE_HELPER
 
             $sms_login =  Login_To_Frik_SMS();
             $vote_url = env("BASE_URL") . "/vote?id=" . $elector->identifiant . "&token=" . $this_elector_vote->secret_code;
-            $message = "Le vote " . $vote->name . "auquel vous avez été affecté.e viens d'etre initié! Cliquez ici pour voter: " . $vote_url;
-            
+            $message = "Le vote << " . $vote->name . " >> auquel vous avez été affecté.e viens d'etre initié! Cliquez ici pour voter: " . $vote_url;
+
             if ($sms_login['status']) {
                 $token =  $sms_login['data']['token'];
                 Send_SMS(
@@ -355,11 +418,60 @@ class VOTE_HELPER extends BASE_HELPER
             #=====ENVOIE D'EMAIL =======~####
             Send_Email(
                 $elector->email,
-                "Vous êtes à un vote sur E-VOTING",
+                "Vous êtes appelé.e à un vote sur E-VOTING",
                 $message,
             );
-
-            return self::sendResponse($vote, "Vote initié avec succès!!");
         }
+
+        return self::sendResponse($vote, "Vote initié avec succès!!");
+    }
+
+    function resendVote($vote_id)
+    {
+        $user = request()->user();
+        $vote = Vote::where(["id" => $vote_id, "owner" => $user->id, "visible" => 1])->get();
+        if ($vote->count() == 0) {
+            return self::sendError("Ce vote n'existe pas!", 404);
+        };
+
+        $vote = $vote[0];
+        #VERIFIONS SI CE VOTE A DEJA ETE INITIER
+        if ($vote->status != 2) {
+            return self::sendError("Ce vote n'est pas encore initié", 505);
+        }
+
+        $electors = $vote->electors;
+        if (count($electors) == 0) {
+            return self::sendError("Aucun electeur n'est associé à ce vote!", 404);
+        }
+
+        foreach ($electors as $elector) {
+            $this_elector_vote = ElectorVote::where(["elector_id" => $elector->id, "vote_id" => $vote_id])->get();
+
+            $this_elector_vote = $this_elector_vote[0];
+
+            #===== ENVOIE D'SMS AUX ELECTEURS DU VOTE =======~####
+
+            $sms_login =  Login_To_Frik_SMS();
+            $vote_url = env("BASE_URL") . "/vote?id=" . $elector->identifiant . "&token=" . $this_elector_vote->secret_code;
+            $message = "Le vote << " . $vote->name . " >> auquel vous avez été affecté.e viens d'etre initié! Cliquez ici pour voter: " . $vote_url;
+
+            if ($sms_login['status']) {
+                $token =  $sms_login['data']['token'];
+                Send_SMS(
+                    $elector->phone,
+                    $message,
+                    $token
+                );
+            }
+
+            #=====ENVOIE D'EMAIL =======~####
+            Send_Email(
+                $elector->email,
+                "Vous êtes appelé.e à un vote sur E-VOTING",
+                $message,
+            );
+        }
+        return self::sendResponse($vote, "Vote renvoyé avec succès!!");
     }
 }

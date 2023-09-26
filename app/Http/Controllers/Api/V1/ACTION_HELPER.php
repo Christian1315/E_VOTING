@@ -59,11 +59,11 @@ class ACTION_HELPER extends BASE_HELPER
 
     static function _updateAction($formData, $id)
     {
-        $action = Action::where('id', $id)->get();
-        if (count($action) == 0) {
+
+        $action = Action::find($id);
+        if (!$action) {
             return self::sendError("Cette action n'existe pas!", 404);
         };
-        $action = Action::find($id);
         $action->update($formData);
         $action['rights'] = $action->rights;
         return self::sendResponse($action, 'Cette action a été modifié avec succès!');
@@ -71,11 +71,11 @@ class ACTION_HELPER extends BASE_HELPER
 
     static function actionDelete($id)
     {
-        $action = Action::where('id', $id)->get();
-        if (count($action) == 0) {
+
+        $action = Action::find($id);
+        if (!$action) {
             return self::sendError("Cette action n'existe pas!", 404);
         };
-        $action = Action::find($id);
         $action->delete();
         $action['users'] = $action->users;
         $action['rights'] = $action->rights;
