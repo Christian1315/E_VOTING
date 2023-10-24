@@ -2,7 +2,10 @@
 
 use App\Http\Controllers\PdfController;
 use App\Mail\SendEmail;
+use App\Models\User;
+use App\Notifications\SendNotification;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Route;
 
 
@@ -37,4 +40,22 @@ Route::get('/sendMail', function () {
     ];
     Mail::to("gogochristian009@gmail.com")->send(new SendEmail($user));
     dd("MESSAGE ENVOYE AVEC SUCCèS");
+});
+
+Route::get('/sendNotification', function () {
+    $data = [
+        "subject" => "TEST DE NOTIFICATION",
+        "message" => "INSCRIS AVEC SUCCES SUR E-VOTING!",
+    ];
+    $user = User::find(4);
+    Send_Notification(
+        $user,
+        "TEST DE NOTIFICATION",
+        "INSCRIS AVEC SUCCES SUR E-VOTING!"
+    );
+    // return $user;
+    // $notification = new SendNotification($data);
+    // $notification->to($user->email);
+    // Notification::send($user, new SendNotification($data));
+    dd("NOTIFICATION ENVOYEE AVEC SUCCèS");
 });

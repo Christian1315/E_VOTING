@@ -124,14 +124,19 @@ class CANDIDAT_HELPER extends BASE_HELPER
 
     static function updateCandidats($request, $id)
     {
+        $user = request()->user();
         $formData = $request->all();
-        $candidat = Candidat::where(['id' => $id, 'owner' => request()->user()->id, "visible" => 1])->get();
+        $candidat = Candidat::where(["visible" => 1])->find($id);
+
         if ($candidat->count() == 0) {
             return self::sendError("Ce Candidat n'existe pas!", 404);
         }
 
+        if ($candidat->owner != $user->id) {
+            return self::sendError("Ce Candidat ne vous appartient pas!", 404);
+        }
+
         if ($request->get("organisation")) {
-            $user =  request()->user();
 
             if ($user->is_super_admin) { #S'IL EST UN SUPER ADMIN
                 #ON VERIFIE JUSTE L'ORGANISATION VIA SON ID
@@ -141,8 +146,8 @@ class CANDIDAT_HELPER extends BASE_HELPER
                 }
             } else { #S'IL N'EST PAS UN SUPER ADMIN
                 #on verifie si l'organisation existe dans la DB
-                $organisation = Organisation::where(['id' => $formData['organisation']])->get();
-                if ($organisation->count() == 0) {
+                $organisation = Organisation::find($formData['organisation']);
+                if (!$organisation) {
                     return self::sendError("Cette organisation n'existe pas!", 404);
                 }
 
@@ -150,7 +155,9 @@ class CANDIDAT_HELPER extends BASE_HELPER
                 $user_organisation_id = $user->organisation; #recuperation de l'ID de l'organisation affectée au user
                 $this_admin_organisation = Get_User_Organisation($user_organisation_id);
 
-                if ($formData["organisation"] != $this_admin_organisation->id) {
+                // return $user_organisation_id;
+
+                if ($formData["organisation"] != $user_organisation_id) {
                     return self::sendError("Vous ne faites pas parti de cette organisation", 404);
                 }
             }
@@ -164,18 +171,21 @@ class CANDIDAT_HELPER extends BASE_HELPER
             //REFORMATION DU $formData AVANT SON ENREGISTREMENT DANS LA TABLE 
             $formData["img"] = asset("candidats/" . $img_name);
         }
-        $candidat = $candidat[0];
         $candidat->update($formData);
         return self::sendResponse($candidat, "Candidat modifié(e) avec succès:!!");
     }
 
     static function candidatDelete($id)
     {
-        $candidat = Candidat::where(['id' => $id, 'owner' => request()->user()->id])->get();
-        if (count($candidat) == 0) {
-            return self::sendError("Cet Candidat n'existe pas!", 404);
-        };
-        $candidat = $candidat[0];
+        $user = request()->user();
+        $candidat = Candidat::where(["visible" => 1])->find($id);
+        if ($candidat->count() == 0) {
+            return self::sendError("Ce Candidat n'existe pas!", 404);
+        }
+
+        if ($candidat->owner != $user->id) {
+            return self::sendError("Ce Candidat ne vous appartient pas!", 404);
+        }
         $candidat->visible = 0;
         $candidat->deleted_at = now();
         $candidat->save();

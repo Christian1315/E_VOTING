@@ -1,10 +1,11 @@
 <?php
 
 use App\Mail\SendEmail;
-use App\Models\CandidatVote;
 use App\Models\Organisation;
 use App\Models\Right;
 use App\Models\User;
+use App\Notifications\SendNotification;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 
@@ -77,6 +78,15 @@ function Send_Email($email, $subject, $message)
         "message" => $message,
     ];
     Mail::to($email)->send(new SendEmail($data));
+}
+
+function Send_Notification($receiver, $subject, $message)
+{
+    $data = [
+        "subject" => $subject,
+        "message" => $message,
+    ];
+    Notification::send($receiver, new SendNotification($data));
 }
 
 

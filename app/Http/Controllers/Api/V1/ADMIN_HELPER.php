@@ -99,24 +99,34 @@ class ADMIN_HELPER extends BASE_HELPER
 
         #=====ENVOIE D'SMS =======~####
         $sms_login =  Login_To_Frik_SMS();
-        $message = "Votre compte admin a été crée avec succès sur E-VOTING. Voici ci-dessous vos identifiants de connexion: Username::" . $username;
+        // $message = "Votre compte admin a été crée avec succès sur E-VOTING. Voici ci-dessous vos identifiants de connexion: Username::" . $username;
+        $message = "Votre compte admin a été crée avec succès sur E-VOTING. Vos identifiants de connexion vous seront envoyés par l'admin";
 
-        if ($sms_login['status']) {
-            $token =  $sms_login['data']['token'];
 
-            Send_SMS(
-                $formData['phone'],
+        try {
+            if ($sms_login['status']) {
+                $token =  $sms_login['data']['token'];
+
+                Send_SMS(
+                    $formData['phone'],
+                    $message,
+                    $token
+                );
+            }
+            #=====ENVOIE D'EMAIL =======~####
+            Send_Email(
+                $formData['email'],
+                "INSCRIPTION SUR E-VOTING",
                 $message,
-                $token
             );
+            // Send_Notification(
+            //     $user,
+            //     "INSCRIPTION SUR E-VOTING",
+            //     $message
+            // );
+        } catch (\Throwable $th) {
+            //throw $th;
         }
-
-        #=====ENVOIE D'EMAIL =======~####
-        Send_Email(
-            $formData['email'],
-            "Inscription sur E-VOTING",
-            $message,
-        );
         return self::sendResponse($admin, 'Admin crée avec succès!!');
     }
 
