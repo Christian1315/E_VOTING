@@ -57,12 +57,10 @@ function Login_To_Frik_SMS()
     return $response;
 }
 
-function Send_SMS($phone, $message, $token)
+function Send_SMS($phone, $message, $token=null)
 {
 
-    $response = Http::withHeaders([
-        'Authorization' => "Bearer " . $token,
-    ])->post(env("SEND_SMS_API_URL") . "/api/v1/sms/send", [
+    $response = Http::post(env("SEND_SMS_API_URL") . "/api/v1/sms/send_sms_from_other_plateforme", [
         "phone" => $phone,
         "message" => $message,
         "expediteur" => env("EXPEDITEUR"),

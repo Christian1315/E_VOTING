@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Models\Admin;
 use App\Models\Organisation;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 
@@ -98,21 +99,15 @@ class ADMIN_HELPER extends BASE_HELPER
         $admin->save();
 
         #=====ENVOIE D'SMS =======~####
-        $sms_login =  Login_To_Frik_SMS();
         // $message = "Votre compte admin a été crée avec succès sur E-VOTING. Voici ci-dessous vos identifiants de connexion: Username::" . $username;
         $message = "Votre compte admin a été crée avec succès sur E-VOTING. Vos identifiants de connexion vous seront envoyés par l'admin";
 
-
         try {
-            if ($sms_login['status']) {
-                $token =  $sms_login['data']['token'];
-
-                Send_SMS(
-                    $formData['phone'],
-                    $message,
-                    $token
-                );
-            }
+            #==== ENVOIE DES SMS ======#
+            Send_SMS(
+                $formData['phone'],
+                $message
+            );
             #=====ENVOIE D'EMAIL =======~####
             Send_Email(
                 $formData['email'],
@@ -125,7 +120,7 @@ class ADMIN_HELPER extends BASE_HELPER
             //     $message
             // );
         } catch (\Throwable $th) {
-            //throw $th;
+            // throw $th;
         }
         return self::sendResponse($admin, 'Admin crée avec succès!!');
     }

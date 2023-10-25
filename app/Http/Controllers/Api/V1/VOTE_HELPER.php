@@ -300,26 +300,26 @@ class VOTE_HELPER extends BASE_HELPER
         }
 
         #++====== ENVOIE D'SMS AU ELECTEUR +++++=======
-        $sms_login =  Login_To_Frik_SMS();
 
         // $vote_url = env("BASE_URL") . "/vote/" . $elector[0]->identifiant . "/" . $elector[0]->secret_code . "/" . $vote->id;
         $message = "Vous avez été affecté.e au vote << " . $vote->name . " >> en tant qu'electeur sur e-voting";
 
-        if ($sms_login['status']) {
-            $token =  $sms_login['data']['token'];
+        try {
+            ##======ENVOIE D'SMS======##
             Send_SMS(
                 $elector[0]->phone,
                 $message,
-                $token
             );
-        }
 
-        #=====ENVOIE D'EMAIL =======~####
-        Send_Email(
-            $elector[0]->email,
-            "Vous avez été affecté.e à un vote sur E-VOTING",
-            $message,
-        );
+            #=====ENVOIE D'EMAIL =======~####
+            Send_Email(
+                $elector[0]->email,
+                "Vous avez été affecté.e à un vote sur E-VOTING",
+                $message,
+            );
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
 
         return self::sendResponse($vote, "Affectation effectuée avec succès!");
     }
@@ -402,25 +402,25 @@ class VOTE_HELPER extends BASE_HELPER
 
             #===== ENVOIE D'SMS AUX ELECTEURS DU VOTE =======~####
 
-            $sms_login =  Login_To_Frik_SMS();
             $vote_url = env("BASE_URL") . "/vote?id=" . $elector->identifiant . "&token=" . $this_elector_vote->secret_code;
             $message = "Le vote << " . $vote->name . " >> auquel vous avez été affecté.e viens d'etre initié! Cliquez ici pour voter: " . $vote_url;
 
-            if ($sms_login['status']) {
-                $token =  $sms_login['data']['token'];
+            try {
+                #===SMS====#
                 Send_SMS(
                     $elector->phone,
-                    $message,
-                    $token
+                    $message
                 );
-            }
 
-            #=====ENVOIE D'EMAIL =======~####
-            Send_Email(
-                $elector->email,
-                "Vous êtes appelé.e à un vote sur E-VOTING",
-                $message,
-            );
+                #=====ENVOIE D'EMAIL =======~####
+                Send_Email(
+                    $elector->email,
+                    "Vous êtes appelé.e à un vote sur E-VOTING",
+                    $message,
+                );
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
         }
 
         return self::sendResponse($vote, "Vote initié avec succès!!");
@@ -452,25 +452,25 @@ class VOTE_HELPER extends BASE_HELPER
 
             #===== ENVOIE D'SMS AUX ELECTEURS DU VOTE =======~####
 
-            $sms_login =  Login_To_Frik_SMS();
             $vote_url = env("BASE_URL") . "/vote?id=" . $elector->identifiant . "&token=" . $this_elector_vote->secret_code;
             $message = "Le vote << " . $vote->name . " >> auquel vous avez été affecté.e viens d'etre initié! Cliquez ici pour voter: " . $vote_url;
 
-            if ($sms_login['status']) {
-                $token =  $sms_login['data']['token'];
+            try {
+                ##====ENVOIE D'SMS=====##
                 Send_SMS(
                     $elector->phone,
-                    $message,
-                    $token
+                    $message
                 );
-            }
 
-            #=====ENVOIE D'EMAIL =======~####
-            Send_Email(
-                $elector->email,
-                "Vous êtes appelé.e à un vote sur E-VOTING",
-                $message,
-            );
+                #=====ENVOIE D'EMAIL =======~####
+                Send_Email(
+                    $elector->email,
+                    "Vous êtes appelé.e à un vote sur E-VOTING",
+                    $message,
+                );
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
         }
         return self::sendResponse($vote, "Vote renvoyé avec succès!!");
     }

@@ -302,24 +302,15 @@ class USER_HELPER extends BASE_HELPER
         $user->save();
 
         #===== ENVOIE D'SMS AUX ELECTEURS DU VOTE =======~####
-
-        Send_Email(
-            $user->email,
-            "Demande de réinitialisation de password",
-            "Demande de réinitialisation éffectuée avec succès! sur E-VOTING! Voici vos informations de réinitialisation de password ::" . $pass_code,
-        );
-
-        // $sms_login =  Login_To_Frik_SMS();
-
-        // if ($sms_login['status']) {
-        //     $token =  $sms_login['data']['token'];
-        //     Send_SMS(
-        //         $user->phone,
-        //         "Demande de réinitialisation éffectuée avec succès! sur E-VOTING! Voici vos informations de réinitialisation de password ::" . $pass_code,
-        //         $token
-        //     );
-        // }
-
+        try {
+            Send_Email(
+                $user->email,
+                "Demande de réinitialisation de password",
+                "Demande de réinitialisation éffectuée avec succès! sur E-VOTING! Voici vos informations de réinitialisation de password ::" . $pass_code,
+            );
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
         return self::sendResponse($user, "Demande de réinitialisation éffectuée avec succès! Veuillez vous connecter avec le code qui vous a été envoyé par phone ");
     }
 
@@ -357,18 +348,13 @@ class USER_HELPER extends BASE_HELPER
         $user->pass_code_active = 0;
         $user->save();
 
-
-        #===== ENVOIE D'SMS AUX ELECTEURS DU VOTE =======~####
-
-        $sms_login =  Login_To_Frik_SMS();
-
-        if ($sms_login['status']) {
-            $token =  $sms_login['data']['token'];
+        try {
             Send_SMS(
                 $user->phone,
-                "Réinitialisation de password éffectuée avec succès sur E-VOTING!",
-                $token
+                "Réinitialisation de password éffectuée avec succès sur E-VOTING!"
             );
+        } catch (\Throwable $th) {
+            //throw $th;
         }
 
         return self::sendResponse($user, "Réinitialisation éffectuée avec succès!");

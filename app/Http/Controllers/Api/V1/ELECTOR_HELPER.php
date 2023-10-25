@@ -86,25 +86,25 @@ class ELECTOR_HELPER extends BASE_HELPER
         $elector->save();
 
         #=====ENVOIE D'SMS A L'ELECTEUR APRES CREATION DE SON COMPTE USER =======~####
-        $sms_login =  Login_To_Frik_SMS();
         $message = "Vous avez été ajouté.e comme un electeur à l'organisation <<" . $organisation_name . ">> sur E-VOTING. Voici ci-dessous vos identifiants de connexion: Username:: " . $username;
 
-        if ($sms_login['status']) {
-            $token =  $sms_login['data']['token'];
-
+        try {
+            #===SMS====#
             Send_SMS(
                 $formData['phone'],
-                $message,
-                $token
+                $message
             );
+
+            #=====ENVOIE D'EMAIL =======~####
+            Send_Email(
+                $formData['email'],
+                "Vous êtes electeur sur E-VOTING",
+                $message,
+            );
+        } catch (\Throwable $th) {
+            //throw $th;
         }
 
-        #=====ENVOIE D'EMAIL =======~####
-        Send_Email(
-            $formData['email'],
-            "Vous êtes electeur sur E-VOTING",
-            $message,
-        );
         return self::sendResponse($elector, 'Electeur crée avec succès!!');
     }
 
@@ -161,6 +161,4 @@ class ELECTOR_HELPER extends BASE_HELPER
         $elector->save();
         return self::sendResponse($elector, 'Ce electeur a été supprimé avec succès!');
     }
-
-    
 }
