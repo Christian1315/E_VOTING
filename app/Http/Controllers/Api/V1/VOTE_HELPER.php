@@ -110,14 +110,11 @@ class VOTE_HELPER extends BASE_HELPER
         } else { #S'IL N'EST PAS UN SUPER ADMIN
             #ON RECUPERE SON ORGANISATION
             $organisation_id = $user->organisation; #recuperation de l'ID de l'organisation affectée au user
-            // $organisation = Get_User_Organisation($user_organisation_id);
-            // $organisation_id = $organisation->id;
         }
         $formData["organisation"] = $organisation_id;
 
         #TRAITEMENT DU CHAMP **candidats** renseigné PAR LE USER
         $candidats_ids = $formData["candidats"];
-        // return $candidats;
         // $candidats_ids = explode(",", $candidats_ids);
         foreach ($candidats_ids as $id) {
             $candidat = Candidat::where(["id" => $id, "owner" => $user->id, "visible" => 1])->get();
@@ -154,7 +151,7 @@ class VOTE_HELPER extends BASE_HELPER
 
         if ($request->get("electors")) {
             foreach ($electors_ids as $id) {
-                #AFFECTATION DE L'ELECTEUR AU VOTE S'IL LE CHAMP EST RENSEIGNE PAR LE USER
+                #AFFECTATION DE L'ELECTEUR AU VOTE Si LE CHAMP EST RENSEIGNE PAR LE USER
                 $elector = Elector::where(["id" => $id, "owner" => $user->id])->get();
 
                 $this_elector_vote = ElectorVote::where(["elector_id" => $id, "vote_id" => $vote->id])->get();
@@ -170,6 +167,29 @@ class VOTE_HELPER extends BASE_HELPER
                 $elector_vote = ElectorVote::find($this_elector_vote->id);
                 $elector_vote->secret_code = Str::uuid();
                 $elector_vote->save();
+
+
+                #++====== ENVOIE D'SMS AU ELECTEUR +++++=======
+
+                // $vote_url = env("BASE_URL") . "/vote/" . $elector[0]->identifiant . "/" . $elector[0]->secret_code . "/" . $vote->id;
+                $message = "Vous avez été affecté.e au vote << " . $vote->name . " >> en tant qu'electeur sur e-voting";
+
+                try {
+                    ##======ENVOIE D'SMS======##
+                    Send_SMS(
+                        $elector[0]->phone,
+                        $message,
+                    );
+
+                    #=====ENVOIE D'EMAIL =======~####
+                    Send_Email(
+                        $elector[0]->email,
+                        "Vous avez été affecté.e à un vote sur E-VOTING",
+                        $message,
+                    );
+                } catch (\Throwable $th) {
+                    //throw $th;
+                }
             }
         }
 

@@ -91,18 +91,18 @@ class ELECTOR_HELPER extends BASE_HELPER
         try {
             #===SMS====#
             Send_SMS(
-                $formData['phone'],
+                $formData["phone"],
                 $message
             );
 
             #=====ENVOIE D'EMAIL =======~####
             Send_Email(
                 $formData['email'],
-                "Vous êtes electeur sur E-VOTING",
+                "ELECTEUR SUR E-VOTING",
                 $message,
             );
         } catch (\Throwable $th) {
-            //throw $th;
+            return self::sendResponse($elector, 'Electeur crée avec succès!!');
         }
 
         return self::sendResponse($elector, 'Electeur crée avec succès!!');
@@ -151,11 +151,16 @@ class ELECTOR_HELPER extends BASE_HELPER
 
     static function electorDelete($id)
     {
-        $elector = Elector::where(['id' => $id, 'owner' => request()->user()->id])->get();
-        if (count($elector) == 0) {
+        $user = request()->user();
+
+        $elector = Elector::find($id);
+        if (!$elector) {
             return self::sendError("Ce Electeur n'existe pas!", 404);
         };
-        $elector = $elector[0];
+
+        if ($elector->owner != $user->id) {
+            return self::sendError("Ce Electeur ne vous appartient pas!", 404);
+        };
         $elector->visible = 0;
         $elector->deleted_at = now();
         $elector->save();

@@ -120,7 +120,7 @@ class ADMIN_HELPER extends BASE_HELPER
             //     $message
             // );
         } catch (\Throwable $th) {
-            // throw $th;
+            return self::sendResponse($admin, 'Admin crée avec succès!!');
         }
         return self::sendResponse($admin, 'Admin crée avec succès!!');
     }
